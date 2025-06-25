@@ -231,7 +231,7 @@ server {
     #return 404; # managed by Certbot - Also comment this out
 }
 ```
-
+Certbot later then automatically adds the required lines!
 
 
 
