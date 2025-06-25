@@ -298,21 +298,22 @@ echo "=== Supabase Update Started: $(date) ===" >> $LOG_FILE
 
 # Backup only important configs (NOT the database!)
 echo "Creating config backup..." >> $LOG_FILE
-mkdir -p ~/supabase_config_backup_$BACKUP_DATE
-cp ~/supabase/docker/.env ~/supabase_config_backup_$BACKUP_DATE/
-cp ~/supabase/docker/docker-compose.yml ~/supabase_config_backup_$BACKUP_DATE/
-cp -r ~/supabase/docker/volumes/api ~/supabase_config_backup_$BACKUP_DATE/
+mkdir -p /home/ubuntu/supabase_config_backup_$BACKUP_DATE
+cp /home/ubuntu/supabase/docker/.env /home/ubuntu/supabase_config_backup_$BACKUP_DATE/
+cp /home/ubuntu/supabase/docker/docker-compose.yml /home/ubuntu/supabase_config_backup_$BACKUP_DATE/
+cp -r /home/ubuntu/supabase/docker/volumes/api /home/ubuntu/supabase_config_backup_$BACKUP_DATE/
 
-# Navigate to supabase directory
-cd ~/supabase/docker
+# Update code first (from repository root)
+cd /home/ubuntu/supabase
+echo "Pulling latest updates..." >> $LOG_FILE
+git pull origin master >> $LOG_FILE 2>&1
+
+# Then navigate to docker directory
+cd /home/ubuntu/supabase/docker
 
 # Stop current services
 echo "Stopping Supabase services..." >> $LOG_FILE
 sudo docker-compose down >> $LOG_FILE 2>&1
-
-# Pull latest changes from repository
-echo "Pulling latest Supabase updates..." >> $LOG_FILE
-git pull origin master >> $LOG_FILE 2>&1
 
 # Pull latest Docker images
 echo "Pulling latest Docker images..." >> $LOG_FILE
@@ -335,7 +336,7 @@ sudo docker image prune -af >> $LOG_FILE 2>&1
 
 # Remove old config backups (keep only last 2)
 echo "Cleaning up old config backups..." >> $LOG_FILE
-find ~/supabase_config_backup_* -maxdepth 0 -type d | sort | head -n -2 | xargs rm -rf
+find /home/ubuntu/supabase_config_backup_* -maxdepth 0 -type d | sort | head -n -2 | xargs rm -rf
 
 echo "=== Supabase Update Completed: $(date) ===" >> $LOG_FILE
 echo "" >> $LOG_FILE
