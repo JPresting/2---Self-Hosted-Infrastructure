@@ -1,1 +1,1 @@
-![Kopie von Dein Abschnittstext](https://github.com/user-attachments/assets/e9445164-e5ad-484a-a657-770cf39e6a1e)
+![Kopie von Dein Abschnittstext (1)](https://github.com/user-attachments/assets/1a7134c8-0718-475a-a6c8-8e41173b2c77)
