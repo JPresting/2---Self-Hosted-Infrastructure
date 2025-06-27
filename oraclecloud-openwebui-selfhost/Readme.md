@@ -91,17 +91,6 @@ sudo docker run -d \
 - **Standard ports** would be 3000 or 8080, but 3001 ensures no conflicts
 - **Oracle Cloud**: You MUST add port 3001 to your Security Rules in **Step 1.3** above
 
-**Important:** If you're only running Open WebUI and no other services, you can use port 3000 instead:
-```bash
-# Alternative with standard port 3000
-sudo docker run -d \
- --name openwebui \
- -p 3000:8080 \
- -v /home/ubuntu/data:/app/backend/data \
- --restart unless-stopped \
- ghcr.io/open-webui/open-webui:main
-```
-
 ### 4.3 Verify Installation
 ```bash
 # Check if container is running
@@ -123,7 +112,10 @@ sudo nano /etc/nginx/sites-available/openwebui.conf
 ```nginx
 server {
     server_name chat.example.com;
-    
+    # IP WHITELIST - UNCOMMENT AND MODIFY BELOW
+    # allow 203.0.113.0/24;        # Your company IP range
+    # allow 198.51.100.50;         # Your home IP
+    # deny all;                    # Block everyone else
     location / {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
@@ -257,6 +249,193 @@ tail -f /var/log/openwebui_update.log
 sudo crontab -l
 ```
 
+## 🤖 Step 8: Connect Local Ollama Models (RTX 3080 Setup)
+
+Transform your Open WebUI into a powerhouse by connecting your local RTX 3080 GPU for AI model processing while keeping the convenient cloud-based interface.
+
+### 8.1 Install Ollama Locally
+
+**Windows:**
+1. Download from https://ollama.com
+2. Install `OllamaSetup.exe`
+3. Verify installation: `ollama --version`
+
+### 8.2 Install Models for RTX 3080 (10GB VRAM)
+
+```bash
+# Light models (1-3GB VRAM) - Very fast
+ollama pull llama3.2:1b        # ~1GB - Extremely fast
+ollama pull llama3.2:3b        # ~2GB - Fast, good quality
+ollama pull qwen2.5:3b         # ~2GB - Very smart
+
+# Medium models (4-6GB VRAM) - Excellent balance  
+ollama pull llama3.2:8b        # ~5GB - Excellent quality
+ollama pull mistral:7b         # ~4GB - Mature, reliable
+ollama pull qwen2.5:7b         # ~4GB - Very intelligent
+
+# Heavy models (7-9GB VRAM) - Maximum quality
+ollama pull codellama:13b      # ~8GB - Best for programming
+ollama pull llama3.2:11b       # ~7GB - Top quality
+ollama pull qwen2.5:14b        # ~8GB - Extremely intelligent
+
+# Extreme models (9-10GB VRAM) - Pushing limits
+ollama pull llama3.1:70b-q4    # ~9GB - Huge model, quantized
+
+# Check installed models
+ollama list
+```
+
+### 8.3 Setup ngrok Account & Static Domain
+
+1. **Create Account**: https://ngrok.com (free)
+2. **Install ngrok**: 
+```bash
+winget install ngrok.ngrok
+```
+3. **Get Authtoken**: Dashboard → "Your Authtoken"  
+4. **Setup Authtoken**:
+```bash
+ngrok config add-authtoken YOUR_TOKEN_FROM_DASHBOARD
+```
+5. **Reserve Static Domain**: Dashboard → "Cloud Edge" → "Domains"
+   - Choose subdomain: e.g., `my-ollama.ngrok-free.app`
+
+### 8.4 Create Autostart Script
+
+**Create file:** `C:\ollama-autostart.bat`
+
+```batch
+@echo off
+echo Starting Ollama Auto-Service...
+
+REM Wait for Windows to fully boot
+timeout /t 30 /nobreak >nul
+
+REM Start Ollama with all origins allowed (required for ngrok!)
+set OLLAMA_ORIGINS=*
+echo Starting Ollama server...
+start /B ollama serve
+
+REM Wait for Ollama to start
+timeout /t 15 /nobreak >nul
+
+REM Start ngrok tunnel with permanent URL and host header
+echo Starting ngrok tunnel...
+start /B ngrok http 11434 --url=my-ollama.ngrok-free.app --host-header="localhost:11434"
+
+REM Wait for ngrok to start
+timeout /t 10 /nobreak >nul
+
+echo.
+echo ========================================
+echo Ollama Auto-Service READY!
+echo ========================================
+echo Ollama:    http://localhost:11434
+echo Public:    https://my-ollama.ngrok-free.app
+echo ========================================
+echo.
+
+REM Keep window open for monitoring
+pause
+```
+
+### 8.5 Enable Autostart
+
+**Copy script to:**
+```
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\
+```
+
+**Remove any existing "Ollama" shortcuts from startup to avoid conflicts.**
+
+### 8.6 Connect Open WebUI to Local Ollama
+
+**Update Oracle Cloud container:**
+
+```bash
+# SSH to Oracle Cloud VM
+ssh -i your-key.key ubuntu@your-oracle-ip
+
+# Stop current container
+sudo docker stop openwebui
+sudo docker rm openwebui
+
+# Start with local Ollama connection and security
+sudo docker run -d \
+  --name openwebui \
+  -p 3001:8080 \
+  -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" \
+  -e ENABLE_SIGNUP="false" \
+  -v /home/ubuntu/data:/app/backend/data \
+  --restart unless-stopped \
+  ghcr.io/open-webui/open-webui:main
+```
+
+**Update auto-update script:**
+```bash
+nano ~/update_openwebui.sh
+```
+
+**Add Ollama connection and security to the docker run command:**
+```bash
+sudo docker run -d \
+ --name openwebui \
+ -p 3001:8080 \
+ -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" \
+ -e ENABLE_SIGNUP="false" \
+ -v /home/ubuntu/data:/app/backend/data \
+ --restart unless-stopped \
+ ghcr.io/open-webui/open-webui:main >> $LOG_FILE 2>&1
+```
+
+### 8.7 Test Setup
+
+1. **Restart your PC** (test autostart)
+2. **Wait 2-3 minutes** for services to start
+3. **Test ngrok URL**: `https://my-ollama.ngrok-free.app/api/tags`
+4. **Test Open WebUI**: `https://chat.example.com`
+5. **Should show your local models** in model selector
+
+### 8.8 Model Management
+
+**Automatic behavior:**
+- **New models**: Appear automatically in Open WebUI after `ollama pull`
+- **Model loading**: 5-10 seconds when first selected
+- **Memory management**: Models auto-unload after 5 minutes of inactivity
+- **GPU efficiency**: Only active model uses VRAM
+
+**Manual commands:**
+```bash
+ollama list        # Show all installed models
+ollama ps          # Show currently loaded models  
+ollama rm model    # Remove model
+ollama pull model  # Install new model
+```
+
+## 🔐 Security Considerations for Local Models
+
+**⚠️ IMPORTANT:** Your local GPU power is accessible via your public Open WebUI!
+
+**Risk:** Anyone who creates an account can use your RTX 3080 for free.
+
+**Solutions:**
+
+**1. Disable Public Registration (Recommended):**
+- **`ENABLE_SIGNUP="false"`** prevents new account creation
+- **Existing accounts** continue to work normally
+- **Perfect after you've created your admin account**
+
+## 🎯 Complete Workflow
+
+**After setup:**
+1. **PC starts** → Ollama + ngrok auto-start (2-3 minutes)
+2. **Install new model** → `ollama pull modelname` → Appears in Open WebUI
+3. **Select model** → Loads in 5-10 seconds → Ready for chat
+4. **Model idles** → Auto-unloads after 5 minutes → Frees VRAM
+5. **Automatic updates** → Open WebUI updates Sundays, keeps local connection
+
+**Your RTX 3080 models are now accessible worldwide via your secure Open WebUI instance!**
+
 ## 🔧 Port Overview
 
 Your Open WebUI instance uses these ports:
@@ -264,6 +443,7 @@ Your Open WebUI instance uses these ports:
 - **Port 3001**: Open WebUI Web Interface (proxied through Nginx)
 - **Port 80**: HTTP (redirects to HTTPS)
 - **Port 443**: HTTPS (SSL-secured access)
+- **Port 11434**: Ollama API (local only, tunneled via ngrok)
 
 ## 🛠️ Managing Your Instance
 
@@ -273,7 +453,7 @@ Your Open WebUI instance uses these ports:
 sudo docker stop openwebui
 
 # Start Open WebUI
-sudo docker run -d --name openwebui -p 3001:8080 -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
+sudo docker run -d --name openwebui -p 3001:8080 -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" -e ENABLE_SIGNUP="false" -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
 
 # View Logs
 sudo docker logs openwebui -f
@@ -305,6 +485,7 @@ curl -s https://api.github.com/repos/open-webui/open-webui/releases/latest | gre
 - **Detailed logging** of all operations
 - **Health checks** after updates
 - **Automatic cleanup** of old Docker images
+- **Preserves Ollama connection** during updates
 
 ## 🔐 Data Safety
 
@@ -314,6 +495,7 @@ curl -s https://api.github.com/repos/open-webui/open-webui/releases/latest | gre
 - ✅ **File uploads**: `/home/ubuntu/data/uploads/`
 - ✅ **Vector database**: `/home/ubuntu/data/vector_db/`
 - ✅ **Cache**: `/home/ubuntu/data/cache/`
+- ✅ **Ollama connection**: OLLAMA_BASE_URL preserved in updates
 
 ### What Gets Updated
 - 🔄 **Open WebUI software**: Latest features and bug fixes
@@ -327,6 +509,12 @@ curl -s https://api.github.com/repos/open-webui/open-webui/releases/latest | gre
 2. Verify port accessibility: `sudo netstat -tlnp | grep :3001`
 3. Check Nginx logs: `sudo tail -f /var/log/nginx/error.log`
 4. Restart container: `sudo docker restart openwebui`
+
+### Ollama Models Not Showing
+1. **Check ngrok tunnel**: Browser to your ngrok URL + `/api/tags`
+2. **Should return JSON** with your models
+3. **If 403 error**: Restart ollama with `set OLLAMA_ORIGINS=*`
+4. **If offline**: Check if both ollama and ngrok are running
 
 ### Container Won't Start
 ```bash
@@ -367,17 +555,18 @@ sudo docker stop openwebui
 sudo docker rm openwebui
 
 # Start with correct data path
-sudo docker run -d --name openwebui -p 3001:8080 -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
+sudo docker run -d --name openwebui -p 3001:8080 -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" -e ENABLE_SIGNUP="false" -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
 ```
 
 ## 🔐 Security Considerations
 
 1. **Change default admin password** after first login
-2. **Enable user registration controls** in Open WebUI settings
+2. **Disable user registration** with `ENABLE_SIGNUP="false"`
 3. **Regularly monitor update logs** for security patches
 4. **Keep your domain DNS secure**
 5. **Monitor Oracle Cloud billing** (shouldn't exceed free tier)
-6. **Consider enabling additional authentication** (OAuth, LDAP)
+6. **Monitor ngrok usage** (free tier has bandwidth limits)
+7. **Consider enabling additional authentication** (OAuth, LDAP)
 
 ## 📚 API Usage
 
@@ -399,11 +588,15 @@ You now have a fully automated, self-hosted Open WebUI instance that:
 - ✅ **Uses SSL encryption** with automatic renewal
 - ✅ **Accessible via custom domain**
 - ✅ **Includes health monitoring** and logging
+- ✅ **Connected to local RTX 3080** for AI processing
+- ✅ **Secured against unauthorized usage**
 
 ## 🔗 Additional Resources
 
 - [Open WebUI GitHub](https://github.com/open-webui/open-webui)
 - [Open WebUI Documentation](https://docs.openwebui.com/)
+- [Ollama Documentation](https://ollama.com/)
+- [ngrok Documentation](https://ngrok.com/docs)
 - [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/)
 - [Let's Encrypt Documentation](https://letsencrypt.org/docs/)
 
