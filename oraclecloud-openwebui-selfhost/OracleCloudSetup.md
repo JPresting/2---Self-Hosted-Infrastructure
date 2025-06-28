@@ -249,7 +249,7 @@ tail -f /var/log/openwebui_update.log
 sudo crontab -l
 ```
 
-## 🤖 Step 8: Connect Local Ollama Models (RTX 3080 Setup)
+## 🤖 Step 8: Connect Local Ollama Models (RTX 3080 Setup in my case)
 
 Transform your Open WebUI into a powerhouse by connecting your local RTX 3080 GPU for AI model processing while keeping the convenient cloud-based interface.
 
