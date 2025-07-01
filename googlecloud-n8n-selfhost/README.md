@@ -90,6 +90,9 @@ gcloud compute ssh YOUR-VM-NAME --zone=YOUR-ZONE
 # Example:
 # gcloud compute ssh n8ninstancecurrent --zone=us-central1-a --ssh-flag="-o ServerAliveInterval=30"
 ```
+<img width="212" alt="Screenshot 2025-07-01 125522" src="https://github.com/user-attachments/assets/fcec861f-f7ad-4238-977f-95c3a420b953" />
+
+
 
 This method prevents the random disconnects that occur with browser SSH and provides a much more stable connection.
 
