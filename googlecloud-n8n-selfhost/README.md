@@ -16,7 +16,6 @@ Guide on how to fully self-host n8n in a GCP project with up to no monthly costs
 ![image](https://github.com/user-attachments/assets/5ee0947d-3879-4d6b-8489-ebcf41aa2c18)
 7. Whichever way you are using it, when selecting your project in the top left, it should say, "You've activated your full account."
 
-
 # Step 2: Setting up the Cloud VM Instance
 
 Now we set up the instance where N8N will run.
@@ -43,7 +42,7 @@ Select e2-micro
 ![image](https://github.com/user-attachments/assets/60433d75-23bf-42c1-97cd-61ed870cf1d4)
 8. Change Size (GB) to 30 and the Boot disk type to Standard Persistent Disk as per the guidelines.
 9. It will show you a monthly estimate, as running multiple instances 24/7 would incur these costs for what you selected. However, since you have only one project, you will stay within the free-tier limits, and the only potential costs will be for bandwidth, depending on your workflows.
-10. Give the instance a name (it doesn’t really matter—just make sure it's written without spaces) and click **Create**. Wait a minite until the Status says that it has compelted the setup. If it takes longer, refresh the page.
+10. Give the instance a name (it doesn't really matter—just make sure it's written without spaces) and click **Create**. Wait a minite until the Status says that it has compelted the setup. If it takes longer, refresh the page.
 ![image](https://github.com/user-attachments/assets/06328659-e37a-4350-8790-5113790a1a4a)
 11. Before setting up everything in the shell make sure to make the external IP static so that when an error occurs and you need to restart the instance it will still be pointing on your subdomain. 
 - click on VPC Network, IP addresses.
@@ -54,15 +53,54 @@ Select e2-micro
 Lastly Select "Allow" on these 3 traffic sources. You can edit that later in the VM instance as well but we need it in order to reach our domain via our subdomain.
 ![image](https://github.com/user-attachments/assets/d6bf6370-64c9-4417-9dcd-ab78b8188059)
 
+# Step 2.1: Connecting via Local SSH (Recommended Alternative)
+
+Instead of using the unreliable browser SSH, use your local terminal for a stable connection:
+
+## Install Google Cloud SDK
+
+**Windows:**
+```bash
+winget install Google.CloudSDK
+```
+
+**Mac:**
+```bash
+brew install google-cloud-sdk
+```
+
+**Linux:**
+```bash
+curl https://sdk.cloud.google.com | bash
+exec -l $SHELL
+```
+
+## Setup Authentication & Connect
+
+```bash
+# Login to Google Cloud
+gcloud auth login
+
+# Set your project ID
+gcloud config set project YOUR-PROJECT-ID
+
+# Connect with keep-alive to prevent 10-minute timeout
+gcloud compute ssh YOUR-VM-NAME --zone=YOUR-ZONE 
+
+# Example:
+# gcloud compute ssh n8ninstancecurrent --zone=us-central1-a --ssh-flag="-o ServerAliveInterval=30"
+```
+
+This method prevents the random disconnects that occur with browser SSH and provides a much more stable connection.
 
 # Step 3: Setting up N8N
 
-Now, go back to the **VM instance** we created and click on **"Connect SSH."**
+Now, go back to the **VM instance** we created and click on **"Connect SSH."** or use the local SSH method above.
 ![image](https://github.com/user-attachments/assets/038ee935-c057-4067-b5f0-e155eaf1855d)
-Authorize with your **Google Account** (note that the connection may drop frequently). If that happens, just **reconnect and reauthorize**.  
-Depending on where you left off, you might need to **reinstall** or **remove** a partially installed instance. This happened to me quite often. In such cases, just ask **ChatGPT** how to uninstall the instance, and then you can restart the setup.
-Now enter the following commands after one another:
 
+**Note:** If using browser SSH, the connection may drop frequently. The local SSH method above is much more reliable.
+
+Now enter the following commands after one another:
 
 1. **Update the Package Index:**
    ```bash
@@ -81,8 +119,6 @@ Click on Y
     ```bash
     sudo systemctl enable docker
 
-
-
 ## Step 3.1: Setting up a Subdomain to point to your Google Cloud Instance
 
 Now we want to add a subdomain of your domain which makes it easy to access your N8N instance from everywhere (dont worry you will need an account). 
@@ -94,12 +130,8 @@ copy the external IP address which we made static before:
 For the **new record**, select **Type A** and name it whatever you like, but keep it **short and precise**. **Points to:** Paste the **external IP address**. **TTL:** Default is **14400**; you can leave it as is.
 ![image](https://github.com/user-attachments/assets/615b06e7-ab76-4dbc-8927-8dc355f4ba73)
 
-
-
-
 ## Step 3.2: Starting n8n in Docker
-Run the following command to start n8n in Docker. Replace **your-domain.com** with your actual domain name. **Make sure you don’t copy and paste it with the "bash" part and the three backticks (` ``` `), or it won’t work.**
-
+Run the following command to start n8n in Docker. Replace **your-domain.com** with your actual domain name. **Make sure you don't copy and paste it with the "bash" part and the three backticks (` ``` `), or it won't work.**
 
 We are using a subdomain, it should look like this: 
 (The subdomain is what we defined as the name—in my example, **myn8n**.)
@@ -119,13 +151,12 @@ We are using a subdomain, it should look like this:
       -v /home/your-google-account/.n8n:/home/node/.n8n \
       n8nio/n8n
     ```
-It now downloads the latest **n8n** image. Since this is the first installation, it obviously can’t find **n8n:latest** in your directory, so that’s not a problem.
+It now downloads the latest **n8n** image. Since this is the first installation, it obviously can't find **n8n:latest** in your directory, so that's not a problem.
 ![image](https://github.com/user-attachments/assets/dd85386c-8807-43af-b25a-77ab298a659e)
-
 
 ## Step 3.3: Installing Nginx
 
-We need **Nginx** as a **reverse proxy** to route traffic to n8n, handle **SSL encryption**, and allow access via a custom domain. Without it, n8n would only be reachable through its internal port (5678), which is not ideal for public access. An alternative is using a **Google Cloud Load Balancer**, but it’s more complex and can incur additional costs. Nginx is lightweight, free, and gives full control over traffic and security. It simplifies setup while ensuring a secure and accessible deployment.
+We need **Nginx** as a **reverse proxy** to route traffic to n8n, handle **SSL encryption**, and allow access via a custom domain. Without it, n8n would only be reachable through its internal port (5678), which is not ideal for public access. An alternative is using a **Google Cloud Load Balancer**, but it's more complex and can incur additional costs. Nginx is lightweight, free, and gives full control over traffic and security. It simplifies setup while ensuring a secure and accessible deployment.
 
 1. **Install Nginx:**
     ```bash
@@ -189,8 +220,6 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-
-
 If the `sudo nginx -t` test fails at this stage, it's because the Nginx configuration includes lines related to Certbot's SSL setup which hasn't run yet. You need to temporarily comment out these lines as shown below, run the test again, restart Nginx, and then proceed with Certbot.
 
 ```nginx
@@ -233,8 +262,6 @@ server {
 ```
 Certbot later then automatically adds the required lines!
 
-
-
 ## Step 3.4: Setting up SSL with Certbot
 
 Certbot will obtain and install an SSL certificate from Let's Encrypt.
@@ -257,13 +284,12 @@ Second one you can enter Y or N doesn't matter. It should work. If an error occu
 
 ![image](https://github.com/user-attachments/assets/bfb16d7e-be0d-455f-b18b-25c6bbf08df2)
 
-
 When entering your domain (with the subdomain) in the browser, it should look like this:
 ![image](https://github.com/user-attachments/assets/84372133-c1d3-4df6-a5db-94871cb97943)
 
 Bear in mind that this has nothing to do with any n8n accounts you might already have. You are setting it up from scratch, and it will only work on this VM instance.
 
-# Step 3: Setting up Auto Updates for N8N
+# Step 4: Setting up Auto Updates for N8N
 
 Since the official n8n repository regularly adds new features, it's important to stay updated without manually downloading, uploading workflows, or reconfiguring credentials. To automate this, we create a **cronjob** that checks for new **stable releases** (not pre-releases) in the n8n GitHub repository every **Sunday night**. If an update is available, it automatically updates the Docker image. Before updating, it saves your configurations in a new folder named **update_n8n**.
 
@@ -274,10 +300,7 @@ johndoe@myvmn8n
 ```
 ![image](https://github.com/user-attachments/assets/9d6aeada-7047-4b45-8b0c-1b86548e795a)
 
-
 After the updates execute it might show you errors: "Cannot GET /home   "   dont worry just dont let you browser auto-complete the URL. Enter subdomain.yourdomain.com  then it will redirect you to the correct path.
-
-
 
 ### **Auto-Update Script for n8n**  
 
@@ -318,14 +341,10 @@ sudo docker image prune -af
 ```
 Save with **Ctrl + O, Enter**, then exit with **Ctrl + X**.
 
----
-
 #### **2️⃣ Make the Script Executable**  
 ```bash
 chmod +x /home/mygoogleaccount/update_n8n.sh
 ```
-
----
 
 #### **3. Set Up a Weekly Cronjob (Sunday at 3 AM)**  
 Open the crontab:  
@@ -336,9 +355,8 @@ sudo crontab -e
 Select nano
 ![image](https://github.com/user-attachments/assets/bd9c300d-eacb-4b79-a1ee-471c85e301cd)
 
-
 Add this line (you can remove the comments before):  
-```bash0
+```bash
 0 3 * * 0 /bin/bash /home/mygoogleaccount/update_n8n.sh >> /var/log/update_n8n.log 2>&1
 30 3 * * 0 sudo find /home/mygoogleaccount/.n8n-backup* -maxdepth 0 -type d | sort | head -n -2 | sudo xargs rm -rf
 @reboot sudo chown -R 1000:1000 ~/.n8n && sudo chmod -R 777 ~/.n8n
@@ -353,7 +371,6 @@ Save and exit.
 - **`0`** → Day of the week (**0 = Sunday**, 1 = Monday, ..., 6 = Saturday)  
 
 This schedule runs the script **every Sunday at 3:00 AM**.
-
 
 Regarding the Update file deletion (-maxdepth 0 -type d | sort | head -n -2 | xargs rm -rf):
 
@@ -375,11 +392,6 @@ Regarding the Update file deletion (-maxdepth 0 -type d | sort | head -n -2 | xa
    * `xargs rm -rf` executes the command `rm -rf` for each directory name
    * `rm -rf` deletes directories and all their contents recursively
 
-
-
-
----
-
 #### **4. Test & Verify**  
 - **Run the script manually:**  
   ```bash
@@ -387,8 +399,6 @@ Regarding the Update file deletion (-maxdepth 0 -type d | sort | head -n -2 | xa
   ```
   Since we just installed N8N it should not find a newer version so it should look like this:
   ![image](https://github.com/user-attachments/assets/5ff92c8d-11d2-4bc5-aebd-72c79e9d1c49)
-
-  
   
 - **Check backup directory:**  
   ```bash
@@ -403,12 +413,13 @@ Regarding the Update file deletion (-maxdepth 0 -type d | sort | head -n -2 | xa
   "Source": "/home/mygoogleaccount/.n8n",
   "Destination": "/home/node/.n8n",
   ```
+
 ### **Summary**
  A **backup** of `.n8n` is created before each update.  
  The **container restarts** with the old data preserved.  
  The **cronjob automates updates** every Sunday at 3 AM. 
----
-Now, please make sure that when setting up your private n8n account, you watch out for the correct path the next time you use it. It should be **`.../home`** so that it doesn’t ask you to sign up again, as there is no login page from the signup screen. It may seem trivial, but if you don’t notice it, you might think your data is lost.
+
+Now, please make sure that when setting up your private n8n account, you watch out for the correct path the next time you use it. It should be **`.../home`** so that it doesn't ask you to sign up again, as there is no login page from the signup screen. It may seem trivial, but if you don't notice it, you might think your data is lost.
 
 If the Cronjob does not work and it does not auto update enter:
 ```bash
@@ -416,7 +427,6 @@ sudo touch /var/log/update_n8n.log
 sudo chmod 666 /var/log/update_n8n.log
 ```
 this hands the log file the permissions it may need.
-
 
 and change the Cronjob to: 
 ```bash
@@ -429,10 +439,7 @@ At worst case you can simply open the shell and enter it manually so it updates 
 sudo bash /home/mygoogleaccount/update_n8n.sh
 ```
 
-
 Hope this helps you set up and automate your n8n instance! 🚀 For more on how to effectively set up workflows that truly help you or your business be more efficient, check out our YouTube channel: [StardawnAI](https://www.youtube.com/@StardawnAI). Thank you! 😊
-
-
 
 ---
 
@@ -468,14 +475,12 @@ sudo docker ps
 - `docker ps` should show `Up X minutes`  
 - `curl` should return `HTTP/1.1 200 OK` or `403 Forbidden`  
 
-
 #### **4 Final Check**  
 Open in browser:  
 ```
 https://myn8n.my-domain.com
 ```
 ![Screenshot 2025-02-18 104846](https://github.com/user-attachments/assets/d5d8dba5-fee6-4cf1-972e-65a37c5144d8)
-
 
 ```bash
 crontab -e
@@ -489,18 +494,3 @@ Add the following line at the end to fix n8n folder permissions on startup:
 This ensures **n8n always has full access** to its config directory after a reboot. 
 
 ![Screenshot 2025-02-18 111733](https://github.com/user-attachments/assets/2c31e3d6-8734-4d2a-9992-01cd11d34042)
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-

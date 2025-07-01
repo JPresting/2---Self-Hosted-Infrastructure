@@ -298,7 +298,7 @@ winget install ngrok.ngrok
 ngrok config add-authtoken YOUR_TOKEN_FROM_DASHBOARD
 ```
 5. **Reserve Static Domain**: Dashboard → "Cloud Edge" → "Domains"
-   - Choose subdomain: e.g., `my-ollama.ngrok-free.app`
+   - Choose subdomain: e.g., `your-subdomain.ngrok-free.app`
 
 ### 8.4 Create Autostart Script
 
@@ -311,8 +311,9 @@ echo Starting Ollama Auto-Service...
 REM Wait for Windows to fully boot
 timeout /t 30 /nobreak >nul
 
-REM Start Ollama with all origins allowed (required for ngrok!)
+REM Start Ollama with all origins allowed (required for ngrok!) and keep models loaded for 30 minutes
 set OLLAMA_ORIGINS=*
+set OLLAMA_KEEP_ALIVE=30m
 echo Starting Ollama server...
 start /B ollama serve
 
@@ -321,7 +322,7 @@ timeout /t 15 /nobreak >nul
 
 REM Start ngrok tunnel with permanent URL and host header
 echo Starting ngrok tunnel...
-start /B ngrok http 11434 --url=my-ollama.ngrok-free.app --host-header="localhost:11434"
+start /B ngrok http 11434 --url=your-subdomain.ngrok-free.app --host-header="localhost:11434"
 
 REM Wait for ngrok to start
 timeout /t 10 /nobreak >nul
@@ -331,7 +332,8 @@ echo ========================================
 echo Ollama Auto-Service READY!
 echo ========================================
 echo Ollama:    http://localhost:11434
-echo Public:    https://my-ollama.ngrok-free.app
+echo Public:    https://your-subdomain.ngrok-free.app
+echo Keep-Alive: 30 minutes
 echo ========================================
 echo.
 
@@ -364,7 +366,7 @@ sudo docker rm openwebui
 sudo docker run -d \
   --name openwebui \
   -p 3001:8080 \
-  -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" \
+  -e OLLAMA_BASE_URL="https://your-subdomain.ngrok-free.app" \
   -e ENABLE_SIGNUP="false" \
   -v /home/ubuntu/data:/app/backend/data \
   --restart unless-stopped \
@@ -381,7 +383,7 @@ nano ~/update_openwebui.sh
 sudo docker run -d \
  --name openwebui \
  -p 3001:8080 \
- -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" \
+ -e OLLAMA_BASE_URL="https://your-subdomain.ngrok-free.app" \
  -e ENABLE_SIGNUP="false" \
  -v /home/ubuntu/data:/app/backend/data \
  --restart unless-stopped \
@@ -392,7 +394,7 @@ sudo docker run -d \
 
 1. **Restart your PC** (test autostart)
 2. **Wait 2-3 minutes** for services to start
-3. **Test ngrok URL**: `https://my-ollama.ngrok-free.app/api/tags`
+3. **Test ngrok URL**: `https://your-subdomain.ngrok-free.app/api/tags`
 4. **Test Open WebUI**: `https://chat.example.com`
 5. **Should show your local models** in model selector
 
@@ -453,7 +455,7 @@ Your Open WebUI instance uses these ports:
 sudo docker stop openwebui
 
 # Start Open WebUI
-sudo docker run -d --name openwebui -p 3001:8080 -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" -e ENABLE_SIGNUP="false" -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
+sudo docker run -d --name openwebui -p 3001:8080 -e OLLAMA_BASE_URL="https://your-subdomain.ngrok-free.app" -e ENABLE_SIGNUP="false" -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
 
 # View Logs
 sudo docker logs openwebui -f
@@ -555,7 +557,7 @@ sudo docker stop openwebui
 sudo docker rm openwebui
 
 # Start with correct data path
-sudo docker run -d --name openwebui -p 3001:8080 -e OLLAMA_BASE_URL="https://my-ollama.ngrok-free.app" -e ENABLE_SIGNUP="false" -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
+sudo docker run -d --name openwebui -p 3001:8080 -e OLLAMA_BASE_URL="https://your-subdomain.ngrok-free.app" -e ENABLE_SIGNUP="false" -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
 ```
 
 ## 🔐 Security Considerations
