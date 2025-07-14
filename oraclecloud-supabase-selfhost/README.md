@@ -194,10 +194,15 @@ sudo nano /etc/nginx/sites-available/supabase.conf
 server {
     server_name sb.example.com;
     
+    # Prevents 413 Request Entity Too Large for vector database entries
+    client_max_body_size 100M;
+    
     gzip on;
 
     # REST API
     location ~ ^/rest/v1/(.*)$ {
+        # Essential for vector database operations - prevents 413 Request Entity Too Large
+        client_max_body_size 100M;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -259,6 +264,8 @@ server {
     return 404;
 }
 ```
+**Important Note about Vector Database Errors:**
+Without the `client_max_body_size 100M;` (100 MB) settings below, you'll get **413 Request Entity Too Large** errors when inserting vector embeddings. This is especially common with OpenAI embeddings (1536+ dimensions) which are much larger than Google embeddings (768 dimensions). The two lines prevent this error for vector database operations. The documents don't have to be too large and you will already run into that error if you don't adjust that value.
 
 ### 6.2 Enable Configuration
 ```bash
