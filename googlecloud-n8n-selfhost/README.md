@@ -183,36 +183,24 @@ Paste the following content (replace with your actual domain and subdomain):
 ```nginx
 server {
     server_name your-subdomain.your-domain.com;
+
     location / {
         proxy_pass http://localhost:5678;
         proxy_http_version 1.1;
-        chunked_transfer_encoding off;
-        proxy_buffering off;
-        proxy_cache off;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
-        proxy_read_timeout 86400;
     }
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/your-subdomain.your-domain.com/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/your-subdomain.your-domain.com/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-}
-server {
-    if ($host = your-subdomain.your-domain.com) {
-        return 301 https://$host$request_uri;
-    } # managed by Certbot
+
     listen 80;
-    server_name your-subdomain.your-domain.com;
-    return 404; # managed by Certbot
 }
+
 ```
 Save with **Ctrl + O**, **Enter**, then exit with **Ctrl + X**.  
+Certbot later then automatically adds the required lines!
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/n8n.conf /etc/nginx/sites-enabled/
@@ -223,7 +211,8 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-If the `sudo nginx -t` test fails at this stage, it's because the Nginx configuration includes lines related to Certbot's SSL setup which hasn't run yet. You need to temporarily comment out these lines as shown below, run the test again, restart Nginx, and then proceed with Certbot.
+Only relevant if you already installed it previously:
+((If the `sudo nginx -t` test fails at this stage, it's because the Nginx configuration includes lines related to Certbot's SSL setup which hasn't run yet. You need to temporarily comment out these lines as shown below, run the test again, restart Nginx, and then proceed with Certbot.))
 
 ```nginx
 server {
@@ -263,7 +252,7 @@ server {
     #return 404; # managed by Certbot - Also comment this out
 }
 ```
-Certbot later then automatically adds the required lines!
+
 
 ## Step 3.4: Setting up SSL with Certbot
 
