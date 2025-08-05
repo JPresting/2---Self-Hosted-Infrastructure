@@ -147,7 +147,7 @@ You should see the rules for ports 80 and 443 in the list.
 
 From here, the installation process is identical to the GCP guide:
 
-🔗 **[Continue with the n8n on GCP guide from Step 3 »](https://github.com/JimPresting/n8n-gcp-selfhost#step-3-setting-up-n8n)**
+🔗 **[Continue with the n8n on GCP guide from Step 3 »](https://github.com/JPresting/2---Self-Hosted-Infrastructure/tree/main/googlecloud-n8n-selfhost)**
 
 The remaining steps include:
 - Installing Docker
