@@ -323,7 +323,8 @@ sudo systemctl reload nginx
 sudo certbot --nginx -d your-actual-domain.com
 # Select option 1 when prompted
 ```
-<img width="1177" height="261" alt="Screenshot 2025-08-06 113412" src="https://github.com/user-attachments/assets/fc13a32c-6004-4dbd-aead-5a037cdcb470" />
+<img width="1177" height="261" alt="Screenshot 2025-08-06 113412" src="https://github.com/user-attachments/assets/226742cd-768c-47b1-a2a7-96ebff9fa538" />
+
 
 
 
