@@ -219,7 +219,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 ## 7. OCI Boot Volume Resize Guide
 
-This guide shows how to expand a boot volume in Oracle Cloud Infrastructure (OCI) without requiring an instance reboot. The process involves resizing the volume in the OCI console and then extending the partition and filesystem from within the running instance.
+This section shows how to expand a boot volume in Oracle Cloud Infrastructure (OCI) without requiring an instance reboot. The process involves resizing the volume in the OCI console and then extending the partition and filesystem from within the running instance.
 
 #### Check Current Status (Before Resize)
 ```bash
@@ -231,7 +231,10 @@ lsblk
 #### Resize Volume in OCI Console
 - Navigate to Block Storage → Boot Volumes
 - Edit your boot volume and increase size
-- Save changes and wait for completion
+- Save changes
+<img width="943" height="329" alt="Screenshot 2025-08-06 161219" src="https://github.com/user-attachments/assets/6c32755d-6ebd-4bed-b033-72edf8d0af9f" />
+
+
 
 #### Rescan System After Resize
 ```bash
