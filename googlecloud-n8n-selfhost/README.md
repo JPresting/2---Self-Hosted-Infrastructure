@@ -291,6 +291,7 @@ sudo certbot --nginx -d myn8n.your-domain.com
 ```
 Enter an Email and select Y
 Second one you can enter Y or N doesn't matter. It should work. If an error occurs it's propably due to the Firewall settings not being set up correctly. 
+<img width="1867" height="199" alt="Screenshot 2025-08-06 102610" src="https://github.com/user-attachments/assets/660ca19e-875f-441c-87da-99a2460d55bc" />
 
 ![image](https://github.com/user-attachments/assets/bfb16d7e-be0d-455f-b18b-25c6bbf08df2)
 
