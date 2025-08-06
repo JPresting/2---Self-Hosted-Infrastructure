@@ -146,7 +146,7 @@ We are using a subdomain, it should look like this:
 sudo mkdir -p /home/ubuntu/.n8n
 ```
 
-Then use in the last line:
+Then change the last line to:
 
 ```bash
 -v /home/ubuntu/.n8n:/home/node/.n8n \
