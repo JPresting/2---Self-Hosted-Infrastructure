@@ -73,9 +73,9 @@ Once the State says **succeeded** you can follow with the next steps
 
 ---
 
-## Very Important Navigation Points That You Will Definitely Need
+# Very Important Navigation Points That You Will Definitely Need
 
-### Get Static IP Address
+## Get Static IP Address
 
 Click on **Networking** and **Reserved Public IPs**...
 
@@ -103,7 +103,10 @@ Now it should say **reserved**. The IP is now not only attached to the instance 
 
 <img width="387" height="75" alt="Screenshot 2025-08-03 162900" src="https://github.com/user-attachments/assets/e0b7907a-fff9-4242-9355-02eeb1b7d824" />
 
-### Add Ingress Rules
+
+
+
+## Add Ingress Rules
 
 Very important is adding Ingress Rules to your server... Why? It tells the server to allow listening on certain ports...
 
