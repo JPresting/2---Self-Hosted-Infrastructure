@@ -54,6 +54,38 @@ ssh -i ~/Documents/ssh-key-2025-05-30.key ubuntu@INSERTYOURPUBLICIPADDRESS
 
 in a txt file so I can quickly connect to the server when opening the terminal.
 
+## SSH Connection Timeout Configuration
+
+To prevent SSH connections from timing out too quickly (default is usually 15-30 minutes), you can configure the server to send keep-alive signals to maintain active connections for longer periods.
+
+### Edit SSH Configuration
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+
+Find and modify these lines (remove the # to uncomment them):
+```
+ClientAliveInterval 600
+ClientAliveCountMax 12
+```
+
+### What these settings mean:
+- `ClientAliveInterval 600` = Server sends a keep-alive signal every 600 seconds (10 minutes)
+- `ClientAliveCountMax 12` = After 12 failed keep-alive attempts, the connection is terminated
+- **Total timeout**: 600 × 12 = 7200 seconds = **2 hours**
+
+### Apply changes:
+After editing the file, restart the SSH service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ssh
+```
+
+### Security considerations:
+- **Benefit**: Prevents disconnection during long periods of inactivity, useful for long-running tasks
+- **Risk**: Keeps potentially compromised connections alive longer
+- **Recommendation**: Use only on trusted networks or when extended sessions are needed
+
 ### 4. Boot Volume
 
 Here you can click on **"Specify a custom boot volume size and performance setting"** and enter **200GB Boot Volume size** which is still included in the Always Free Tier. Or you can leave it as default (50) and change it later.
