@@ -139,6 +139,21 @@ Run the following command to start n8n in Docker. Replace **your-domain.com** wi
 We are using a subdomain, it should look like this: 
 (The subdomain is what we defined as the name—in my example, **myn8n**.)
 
+
+**Important:** When setting up via Oracle Cloud, there is no Google account or path to that folder. First run:
+
+```bash
+sudo mkdir -p /home/ubuntu/.n8n
+```
+
+Then use in the last line:
+
+```bash
+-v /home/ubuntu/.n8n:/home/node/.n8n \
+n8nio/n8n
+```
+
+
     ```bash
     sudo docker run -d --restart unless-stopped -it \
       --name n8n \
@@ -154,6 +169,10 @@ We are using a subdomain, it should look like this:
       -v /home/your-google-account/.n8n:/home/node/.n8n \
       n8nio/n8n
     ```
+
+
+
+
 It now downloads the latest **n8n** image. Since this is the first installation, it obviously can't find **n8n:latest** in your directory, so that's not a problem.
 ![image](https://github.com/user-attachments/assets/dd85386c-8807-43af-b25a-77ab298a659e)
 
