@@ -305,22 +305,27 @@ When entering your domain (with the subdomain) in the browser, it should look li
 
 Bear in mind that this has nothing to do with any n8n accounts you might already have. You are setting it up from scratch, and it will only work on this VM instance.
 
-#### Troubleshooting: n8n Container Fixed But Still Shows "Welcome to nginx!"
+#### **Troubleshooting: SSL/HTTPS Not Working After nginx Fix**
 
-If you had to fix your n8n container (e.g., path issues) and it's now running properly, but your domain still shows "Welcome to nginx!" instead of n8n, this is because nginx was running fine the whole time and is still pointing to the default site instead of your n8n configuration.
+If your n8n shows up correctly on HTTP but HTTPS doesn't work:
 
-**Fix:**
 ```bash
-# Remove default nginx site that overrides your n8n config
-sudo rm /etc/nginx/sites-enabled/default
+# Check if server_name in your config matches your actual domain
+cat /etc/nginx/sites-available/n8n.conf
 
-# Enable your n8n config
-sudo ln -sf /etc/nginx/sites-available/n8n.conf /etc/nginx/sites-enabled/
+# If it shows "your-subdomain.your-domain.com", edit it:
+sudo nano /etc/nginx/sites-available/n8n.conf
+# Change to your actual domain (e.g., testn8n.markenbuilder.com)
 
-# Test and reload nginx
+# Reload nginx and reinstall SSL certificate
 sudo nginx -t
 sudo systemctl reload nginx
+sudo certbot --nginx -d your-actual-domain.com
+# Select option 1 when prompted
 ```
+<img width="1177" height="261" alt="Screenshot 2025-08-06 113412" src="https://github.com/user-attachments/assets/fc13a32c-6004-4dbd-aead-5a037cdcb470" />
+
+
 
 
 # Step 4: Setting up Auto Updates for N8N
