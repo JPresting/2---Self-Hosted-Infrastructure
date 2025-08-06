@@ -305,6 +305,24 @@ When entering your domain (with the subdomain) in the browser, it should look li
 
 Bear in mind that this has nothing to do with any n8n accounts you might already have. You are setting it up from scratch, and it will only work on this VM instance.
 
+### Troubleshooting: n8n Container Fixed But Still Shows "Welcome to nginx!"
+
+If you had to fix your n8n container (e.g., path issues) and it's now running properly, but your domain still shows "Welcome to nginx!" instead of n8n, this is because nginx was running fine the whole time and is still pointing to the default site instead of your n8n configuration.
+
+**Fix:**
+```bash
+# Remove default nginx site that overrides your n8n config
+sudo rm /etc/nginx/sites-enabled/default
+
+# Enable your n8n config
+sudo ln -sf /etc/nginx/sites-available/n8n.conf /etc/nginx/sites-enabled/
+
+# Test and reload nginx
+sudo nginx -t
+sudo systemctl reload nginx
+
+
+
 # Step 4: Setting up Auto Updates for N8N
 
 Since the official n8n repository regularly adds new features, it's important to stay updated without manually downloading, uploading workflows, or reconfiguring credentials. To automate this, we create a **cronjob** that checks for new **stable releases** (not pre-releases) in the n8n GitHub repository every **Sunday night**. If an update is available, it automatically updates the Docker image. Before updating, it saves your configurations in a new folder named **update_n8n**.
