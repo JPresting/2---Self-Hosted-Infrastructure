@@ -238,9 +238,12 @@ lsblk
 
 #### Rescan System After Resize
 ```bash
-sudo partprobe
-# or alternatively:
+
+
 echo 1 | sudo tee /sys/class/block/sda/device/rescan
+
+# or alternatively (might not work):
+sudo partprobe
 ```
 
 #### Extend Partition and Filesystem
