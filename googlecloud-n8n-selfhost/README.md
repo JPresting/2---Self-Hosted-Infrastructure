@@ -230,8 +230,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-Only relevant if you already installed it previously:
-((If the `sudo nginx -t` test fails at this stage, it's because the Nginx configuration includes lines related to Certbot's SSL setup which hasn't run yet. You need to temporarily comment out these lines as shown below, run the test again, restart Nginx, and then proceed with Certbot.))
+**Note:** Only relevant if Nginx is already installed. If `sudo nginx -t` fails (does not say syntax is ok - test is successful) due to Certbot SSL setup lines, comment them out temporarily, retest, restart Nginx, and then proceed with Certbot.
 
 ```nginx
 server {
