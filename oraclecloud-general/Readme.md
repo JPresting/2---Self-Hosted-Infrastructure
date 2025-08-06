@@ -216,7 +216,48 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 ---
 
-## 7. Install n8n, Supabase, or Other Applications
+
+## 7. OCI Boot Volume Resize Guide
+
+This guide shows how to expand a boot volume in Oracle Cloud Infrastructure (OCI) without requiring an instance reboot. The process involves resizing the volume in the OCI console and then extending the partition and filesystem from within the running instance.
+
+#### Check Current Status (Before Resize)
+```bash
+sudo fdisk -l
+df -h
+lsblk
+```
+
+#### Resize Volume in OCI Console
+- Navigate to Block Storage → Boot Volumes
+- Edit your boot volume and increase size
+- Save changes and wait for completion
+
+#### Rescan System After Resize
+```bash
+sudo partprobe
+# or alternatively:
+echo 1 | sudo tee /sys/class/block/sda/device/rescan
+```
+
+#### Extend Partition and Filesystem
+```bash
+# Extend partition (replace sda/1 with your actual device)
+sudo growpart /dev/sda 1
+
+# Extend filesystem
+sudo resize2fs /dev/sda1
+
+# Verify results
+df -h
+lsblk
+```
+
+**Note:** This process can be done online without downtime. The system will show warnings about GPT table mismatches until the partition is extended - this is normal and will be automatically corrected.
+
+
+
+## 8. Install n8n, Supabase, or Other Applications
 
 From here, the installation process for various self-hosted applications follows the same pattern:
 
