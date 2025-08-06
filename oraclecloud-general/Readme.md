@@ -54,40 +54,6 @@ ssh -i ~/Documents/ssh-key-2025-05-30.key ubuntu@INSERTYOURPUBLICIPADDRESS
 
 in a txt file so I can quickly connect to the server when opening the terminal.
 
-## SSH Connection Timeout Configuration
-
-To prevent SSH connections from timing out too quickly (default is usually 15-30 minutes), you can configure the server to send keep-alive signals to maintain active connections for longer periods.
-
-### Edit SSH Configuration
-```bash
-sudo nano /etc/ssh/sshd_config
-```
-
-Find and modify these lines (remove the # to uncomment them):
-```
-ClientAliveInterval 600
-ClientAliveCountMax 12
-```
-
-<img width="598" height="328" alt="Screenshot 2025-08-06 095215" src="https://github.com/user-attachments/assets/06222310-e40f-4552-aa13-cc9b8461d436" />
-
-
-### What these settings mean:
-- `ClientAliveInterval 600` = Server sends a keep-alive signal every 600 seconds (10 minutes)
-- `ClientAliveCountMax 12` = After 12 failed keep-alive attempts, the connection is terminated
-- **Total timeout**: 600 × 12 = 7200 seconds = **2 hours**
-
-### Apply changes:
-After editing the file, restart the SSH service:
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart ssh
-```
-
-### Security considerations:
-- **Benefit**: Prevents disconnection during long periods of inactivity, useful for long-running tasks
-- **Risk**: Keeps potentially compromised connections alive longer
-- **Recommendation**: Use only on trusted networks or when extended sessions are needed
 
 ### 4. Boot Volume
 
@@ -100,6 +66,10 @@ Click on **Create Instance** (you can check the estimated costs - I don't think 
 <img width="1639" height="476" alt="image" src="https://github.com/user-attachments/assets/4454d356-12fb-48ea-aa53-f232a9c17ab9" />
 
 Once the State says **succeeded** you can follow with the next steps
+
+
+
+
 
 ---
 
@@ -170,5 +140,42 @@ sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 # Save rules permanently
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ```
+
+
+### SSH Connection Timeout Configuration
+
+To prevent SSH connections from timing out too quickly (default is usually 15-30 minutes), you can configure the server to send keep-alive signals to maintain active connections for longer periods.
+
+#### Edit SSH Configuration
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+
+Find and modify these lines (remove the # to uncomment them):
+```
+ClientAliveInterval 600
+ClientAliveCountMax 12
+```
+
+<img width="598" height="328" alt="Screenshot 2025-08-06 095215" src="https://github.com/user-attachments/assets/06222310-e40f-4552-aa13-cc9b8461d436" />
+
+
+#### What these settings mean:
+- `ClientAliveInterval 600` = Server sends a keep-alive signal every 600 seconds (10 minutes)
+- `ClientAliveCountMax 12` = After 12 failed keep-alive attempts, the connection is terminated
+- **Total timeout**: 600 × 12 = 7200 seconds = **2 hours**
+
+#### Apply changes:
+After editing the file, restart the SSH service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ssh
+```
+
+#### Security considerations:
+- **Benefit**: Prevents disconnection during long periods of inactivity, useful for long-running tasks
+- **Risk**: Keeps potentially compromised connections alive longer
+- **Recommendation**: Use only on trusted networks or when extended sessions are needed
+
 
 **Both must be open or traffic fails!**
