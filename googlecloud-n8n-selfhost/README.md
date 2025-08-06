@@ -144,6 +144,8 @@ We are using a subdomain, it should look like this:
 
 ```bash
 sudo mkdir -p /home/ubuntu/.n8n
+sudo chown -R 1000:1000 /home/ubuntu/.n8n
+sudo chmod -R 777 /home/ubuntu/.n8n
 ```
 
 Then change the last line to:
@@ -152,6 +154,9 @@ Then change the last line to:
 -v /home/ubuntu/.n8n:/home/node/.n8n \
 n8nio/n8n
 ```
+
+
+
 
 
     ```bash
