@@ -305,7 +305,7 @@ When entering your domain (with the subdomain) in the browser, it should look li
 
 Bear in mind that this has nothing to do with any n8n accounts you might already have. You are setting it up from scratch, and it will only work on this VM instance.
 
-### Troubleshooting: n8n Container Fixed But Still Shows "Welcome to nginx!"
+#### Troubleshooting: n8n Container Fixed But Still Shows "Welcome to nginx!"
 
 If you had to fix your n8n container (e.g., path issues) and it's now running properly, but your domain still shows "Welcome to nginx!" instead of n8n, this is because nginx was running fine the whole time and is still pointing to the default site instead of your n8n configuration.
 
@@ -320,7 +320,7 @@ sudo ln -sf /etc/nginx/sites-available/n8n.conf /etc/nginx/sites-enabled/
 # Test and reload nginx
 sudo nginx -t
 sudo systemctl reload nginx
-
+```
 
 
 # Step 4: Setting up Auto Updates for N8N
