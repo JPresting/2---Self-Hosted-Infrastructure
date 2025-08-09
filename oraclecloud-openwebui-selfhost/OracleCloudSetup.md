@@ -604,4 +604,4 @@ You now have a fully automated, self-hosted Open WebUI instance that:
 
 ---
 
-**Need help?** Check the [official Open WebUI documentation](https://docs.openwebui.com/) or [GitHub issues](https://github.com/open-webui/open-webui/issues).
+**Need a more advanced deployment, integration, or enterprise automation?** Visit [Stardawnai.com](https://stardawnai.com) for professional consulting and development on AI-driven process automation, SAP integration, self-hosted enterprise N8N workflows, and custom hybrid infrastructure solutions tailored to your business needs.

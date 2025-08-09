@@ -630,4 +630,4 @@ Recommendation: Use Supabase API method and close port 5432 in firewall for maxi
 
 ---
 
-**Need help?** Check the [official Supabase documentation](https://supabase.com/docs) or [Docker self-hosting guide](https://supabase.com/docs/guides/self-hosting/docker).
+**Need a more advanced deployment, integration, or enterprise automation?** Visit [Stardawnai.com](https://stardawnai.com) for professional consulting and development on AI-driven process automation, SAP integration, self-hosted enterprise N8N workflows, and custom hybrid infrastructure solutions tailored to your business needs.

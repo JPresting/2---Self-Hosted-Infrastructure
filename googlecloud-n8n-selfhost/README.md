@@ -534,3 +534,8 @@ Add the following line at the end to fix n8n folder permissions on startup:
 This ensures **n8n always has full access** to its config directory after a reboot. 
 
 ![Screenshot 2025-02-18 111733](https://github.com/user-attachments/assets/2c31e3d6-8734-4d2a-9992-01cd11d34042)
+
+
+
+
+**Need a more advanced deployment, integration, or enterprise automation?** Visit [Stardawnai.com](https://stardawnai.com) for professional consulting and development on AI-driven process automation, SAP integration, self-hosted enterprise N8N workflows, and custom hybrid infrastructure solutions tailored to your business needs.
