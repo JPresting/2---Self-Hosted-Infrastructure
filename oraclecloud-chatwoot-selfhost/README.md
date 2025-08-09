@@ -1,6 +1,6 @@
-# 🚀 Oracle Cloud VM Setup Guide
+# 🚀 Oracle Cloud VM Setup Guide for Chatwoot
 
-Quick guide for setting up a VM instance on Oracle Cloud for self-hosting applications like N8N, Supabase, Chatwoot, or other open-source tools.
+Quick guide for setting up a VM instance on Oracle Cloud for self-hosting Chatwoot customer support platform.
 
 **Key Focus:** The most critical steps are configuring firewall rules (ingress/egress) to allow traffic to reach your applications, and securing a static public IP so you can point your domain's DNS records to a fixed address.
 
@@ -73,9 +73,7 @@ Add these rules with **Source CIDR: `0.0.0.0/0`** and **IP Protocol: TCP**:
 | 22 | SSH | Remote access (usually pre-configured) |
 | 80 | HTTP | Web traffic |
 | 443 | HTTPS | Secure web traffic |
-| 3000 | Applications | Custom applications (e.g., Chatwoot) |
-| 5432 | PostgreSQL | Database access (if needed) |
-| 6379 | Redis | Cache access (if needed) |
+| 3000 | Chatwoot | Customer support platform |
 
 ### Rule Configuration
 - **Stateless:** Leave unchecked (use stateful rules)
@@ -109,14 +107,8 @@ sudo iptables -I INPUT 4 -p tcp --dport 80 -j ACCEPT
 # Allow HTTPS (port 443) 
 sudo iptables -I INPUT 5 -p tcp --dport 443 -j ACCEPT
 
-# Allow custom application ports (e.g., Chatwoot on 3000)
+# Allow Chatwoot (port 3000)
 sudo iptables -I INPUT 6 -p tcp --dport 3000 -j ACCEPT
-
-# Allow PostgreSQL (if needed)
-sudo iptables -I INPUT 7 -p tcp --dport 5432 -j ACCEPT
-
-# Allow Redis (if needed)
-sudo iptables -I INPUT 8 -p tcp --dport 6379 -j ACCEPT
 ```
 
 ### Make iptables Rules Permanent
@@ -152,7 +144,7 @@ Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
 - Oracle Cloud Ubuntu instances come with default iptables rules that **REJECT** all traffic except SSH
 - These rules override Security Group settings
 - **Other cloud providers don't have this issue**
-- Some application installers (like N8N) automatically fix this, but most (like Chatwoot) don't
+- Chatwoot installation doesn't automatically fix this (unlike some other applications)
 
 ### Quick Test
 ```bash
@@ -171,7 +163,7 @@ Once you have your static public IP, point your domain to it:
 2. Navigate to DNS management/DNS settings
 3. Add new **A Record**:
    - **Type:** A
-   - **Host/Name:** @ (for root domain) or subdomain (e.g., app, chat)
+   - **Host/Name:** @ (for root domain) or subdomain (e.g., chat, support)
    - **Value/Points to:** Your Oracle Cloud static IP
    - **TTL:** 14400 (or default)
 
@@ -195,19 +187,88 @@ ssh -i ~/path/to/your-private-key.key ubuntu@YOUR_PUBLIC_IP
 ssh -i ~/Downloads/ssh-key-2025-06-11.key ubuntu@130.162.214.12
 ```
 
-## 📦 Initial VM Setup
+## 📦 Chatwoot Installation
 
-After connecting to your VM, run these essential commands:
+After connecting to your VM and configuring firewalls, install Chatwoot:
 
 ```bash
 # Update package repository
 sudo apt update
 
-# Install network tools (for netstat and networking diagnostics)
-sudo apt install net-tools
+# Download and run Chatwoot installation script
+wget https://get.chatwoot.app/linux/install.sh
+chmod +x install.sh
+./install.sh
 ```
 
-Your VM is now ready for application installation!
+The installer will guide you through:
+- Domain configuration (use your A-record domain)
+- SSL certificate setup (Let's Encrypt)
+- Basic configuration
+
+## 🛠️ Managing Your Chatwoot Instance
+
+### Manual Commands
+```bash
+# Stop Chatwoot
+sudo systemctl stop chatwoot.target
+
+# Start Chatwoot
+sudo systemctl start chatwoot.target
+
+# Check Status
+sudo systemctl status chatwoot.target
+
+# View Logs
+sudo journalctl -u chatwoot.target -f
+
+# Edit Configuration
+sudo nano /home/chatwoot/chatwoot/.env
+```
+
+### Restart After Config Changes
+```bash
+sudo systemctl restart chatwoot.target
+```
+
+## 📧 Google Workspace Email Integration
+
+### Quick Setup:
+1. **Google Cloud Console** → Create OAuth 2.0 Client
+2. **Add Redirect URIs:**
+   - `https://your-domain.com/google/callback`
+   - `https://your-domain.com/omniauth/google_oauth2/callback`
+3. **Enable APIs:** Gmail API, Google Calendar API
+4. **Add to .env:** (Find path via:  sudo find /home/chatwoot/ -name ".env" 2>/dev/null)
+   ```bash
+   GOOGLE_OAUTH_CLIENT_ID=your_client_id
+   GOOGLE_OAUTH_CLIENT_SECRET=your_client_secret
+   GOOGLE_OAUTH_CALLBACK_URL=https://your-domain.com/google/callback
+   ```
+5. **Restart:** `sudo systemctl restart chatwoot.target`
+
+**Detailed instructions:** [Google Workspace Setup Guide](https://www.chatwoot.com/docs/self-hosted/configuration/features/email-channel/google-workspace-setup/)
+Analog for **Microsoft Office365:** [Office365 Chatwoot Setup](https://developers.chatwoot.com/self-hosted/configuration/features/email-channel/azure-app-setup)
+
+## 📱 Facebook & Instagram Integration
+
+**⚠️ Note:** Facebook/Instagram setup requires **Facebook App Review** and approval, which can take several days/weeks. You need to:
+
+1. Create Facebook Developer App
+2. Configure webhooks and permissions
+3. **Submit for Facebook review** (most complex part)
+4. Wait for approval
+5. Add environment variables:
+   ```bash
+   FB_APP_ID=your_app_id
+   FB_APP_SECRET=your_app_secret
+   FB_VERIFY_TOKEN=your_verify_token
+   IG_VERIFY_TOKEN=your_instagram_token
+   ```
+
+**Detailed setup guides:**
+- [Facebook Messenger Setup](https://www.chatwoot.com/docs/self-hosted/configuration/features/integrations/facebook-channel-setup)
+- [Instagram Setup](https://www.chatwoot.com/docs/self-hosted/configuration/features/integrations/instagram-channel-setup)
 
 ## 🚨 Common Issues & Troubleshooting
 
@@ -225,13 +286,13 @@ Your VM is now ready for application installation!
 3. **Most importantly:** Configure server-level iptables (see Step 2 above)
 4. Test with: `sudo python3 -m http.server 80` and visit http://yourdomain.com
 
-### Application Not Accessible Despite Installation
-**Problem:** Application runs internally (e.g., `netstat -tlnp | grep :3000` shows it's running) but not accessible externally
+### Chatwoot Not Accessible Despite Installation
+**Problem:** Chatwoot runs internally (e.g., `netstat -tlnp | grep :3000` shows it's running) but not accessible externally
 
 **Solution:**
 1. Check both Security Groups AND iptables rules
-2. Add the application's port to both firewall layers
-3. Restart the application after firewall changes
+2. Add port 3000 to both firewall layers
+3. Restart Chatwoot after firewall changes
 
 ### Checking iptables Rule Order
 **Problem:** Rules added but still not working
@@ -253,10 +314,6 @@ sudo iptables -I INPUT 4 -p tcp --dport 80 -j ACCEPT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ```
 
-### Why Oracle Cloud is Different
-- **AWS/Google Cloud:** Typically one firewall layer (Security Groups only)
-- **Oracle Cloud:** Two firewall layers (Security Groups + iptables)
-- **Default behavior:** Oracle blocks everything except SSH for security
-- **Documentation:** Oracle's own documentation rarely mentions this requirement
 
-This setup provides a solid foundation for hosting applications on Oracle Cloud's free tier.
+
+This setup provides a solid foundation for hosting Chatwoot on Oracle Cloud's free tier with proper email integration and social media channels.

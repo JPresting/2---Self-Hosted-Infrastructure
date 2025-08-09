@@ -13,9 +13,9 @@ A complete guide to set up your own Open WebUI instance on Oracle Cloud using Do
 
 ### 1.1 Create VM Instance
 1. Login to Oracle Cloud Console
-2. Create a new VM instance:
-   - **Shape**: VM.Standard.E2.1.Micro (Always Free)
-   - **Image**: Ubuntu 22.04 LTS
+2. Create a new VM instance (or install to existing one):
+   - **Shape**: ARM1 4 cores 24GB RAM (Always Free)
+   - **Image**: Ubuntu 24.04 LTS
    - **SSH Keys**: Generate and download your key pair
    - **Networking**: Allow HTTP (80) and HTTPS (443) traffic
 
@@ -31,7 +31,7 @@ A complete guide to set up your own Open WebUI instance on Oracle Cloud using Do
    - **Port 443** (HTTPS): Source `0.0.0.0/0`
    - **Port 3001** (Open WebUI): Source `0.0.0.0/0`
 
-**Important:** Port 3001 is required for Oracle Cloud firewall to allow access to Open WebUI. Without this rule, you'll get connection timeouts even with Nginx proxy.
+**Important:** Port 3001 (you can use 3000 I used it as I already used 3000 on the same VM) is required for Oracle Cloud firewall to allow access to Open WebUI. Without this rule, you'll get connection timeouts even with Nginx proxy.
 
 ## 🌐 Step 2: DNS Configuration
 
