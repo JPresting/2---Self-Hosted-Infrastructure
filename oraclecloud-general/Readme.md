@@ -20,8 +20,8 @@ Setting up an Oracle Cloud VM can be tricky due to Always-Free tier restrictions
 
 2. **Boost provisioning success**  
    - **Select the right region**  
-     - Some regions (e.g. Chicago – US-Central) may throttle Always-Free VMs  
-     - Choose a region with lighter demand (e.g. Frankfurt, Germany)  
+     - Some regions (default is Chicago – US-Central) may throttle Always-Free VMs  
+     - Choosing a region any region on Always-free may be hard to achieve  
    - **Optionally upgrade** to **Pay As You Go**  
      - Retains eligibility for Always-Free resources  
      - Improves chances of successful VM creation  
