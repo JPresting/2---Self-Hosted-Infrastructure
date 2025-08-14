@@ -1,108 +1,107 @@
-# Oracle-Cloud-N8N-Setup
 
-Setting up an Oracle Cloud VM can be tricky due to Always-Free tier restrictions. By default, free-tier capacity is limited, so provisioning may fail unless you optimize your region choice or account type.
+# Oracle Cloud Infrastructure Setup Guide
 
----
+Generally important for Oracle cloud setup and interactions...
 
-## Prerequisites
+## 1. Get an Instance in the First Place
 
-- A valid Oracle Cloud account at cloud.oracle.com  
-- A remembered **Account Name** (password managers often omit this)  
-- An SSH key-pair (public & private)  
+In order to get an instance in the first place it would be best to upgrade your account to a pay-as-you-go. My experience has been that as soon as you upgrade to pay as you go you can instantly get an instance in your claimed region. You just need to watch out to stay in the always free tier limits. If that's not an intent for you in the first place this does not matter but you need to go to Billing & Cost Management and Upgrade and Manage Payment and upgrade to pay as you go. Their systems are fairly reliable in checking for existing users so it's really just one account per person/credit card.
 
----
+<img width="1840" height="586" alt="image" src="https://github.com/user-attachments/assets/2cf635ca-5347-47ab-80e7-e83dc38ebd20" />
 
-## 1. Register & Optimize Your Account
+## 2. Create an Instance
 
-1. **Sign up** at cloud.oracle.com  
-   - Provide Account Name, Email, Password  
-   - **Remember** the Account Name for future logins  
+Go to the burger menu icon on the top left and click on **Compute** → **Instances**
 
-2. **Boost provisioning success**  
-   - **Select the right region**  
-     - Some regions (default is Chicago – US-Central) may throttle Always-Free VMs  
-   - **Upgrade** to **Pay As You Go**  
-     - Retains eligibility for Always-Free resources  
-     - Improves chances of successful VM creation  
+<img width="1910" height="658" alt="Screenshot 2025-08-03 104642" src="https://github.com/user-attachments/assets/c59ef79e-5fa3-403d-a1d3-28a133fe775e" />
 
-> **Note:** Region selection is permanent for that tenancy.
+Click on **Create Instance**
 
----
+<img width="1661" height="527" alt="Screenshot 2025-08-03 104653" src="https://github.com/user-attachments/assets/f9f696ab-5694-40cd-9ce3-0e835bbaeaa8" />
 
-## 2. Create Your Always-Free VM
+### Basic Information
 
-1. From the Oracle Cloud **Dashboard**, click **Create Instance**.  
-2. Under **Shape**, choose an Always-Free configuration:  
-   - **RM1** processor  
-   - **4 OCPUs** (cores)  
-   - **24 GB RAM**  
-3. Leave **Boot Volume** and **Network** settings at default.  
-4. **Generate & Download** your SSH key-pair:  
-   - Keep the **private key** secure (e.g. in Downloads)  
-   - Note the location of your **public key**  
+Give it a name first of all. The Placement with about 3 different available domains does not matter under most circumstances.
 
-![VM Creation](https://github.com/user-attachments/assets/eee9688f-eb67-4f61-9650-db0a171cde94)
+With regard to our intent it would be best to change the image to an Ubuntu version (Canonical Ubuntu 24.04)
 
----
+The Shape is very important.
 
-## 3. SSH Access
+<img width="928" height="333" alt="Screenshot 2025-08-03 152545" src="https://github.com/user-attachments/assets/136fae68-2494-4671-97e0-f601cc70c652" />
 
-1. Locate your VM's **Public IPv4**:  
-   - **Compute → Instances → Your Instance → Networking**  
-   - Copy the Public IP  
+When it comes to making the most out of your free tier limits I suggest you select **Virtual Machine**, **Ampere A1 Flex** and adjust the OCPU cores to **4** (RAM automatically adjusts to 24 GB) which hands you a powerful server at 0 compute cost. But check the Always Free Tier documentation at: https://www.oracle.com/cloud/free/
 
-   ![Networking Panel](https://github.com/user-attachments/assets/fce460e8-6b9a-4c83-9b4d-4c64e0d07a74)
+<img width="899" height="856" alt="image" src="https://github.com/user-attachments/assets/f9890e23-38fa-4617-9b31-a9158bebe8d3" />
 
-2. From your local terminal, run:  
-   ```bash
-   ssh -i ~/Downloads/ssh-key-2025-04-29.key ubuntu@YOUR_PUBLIC_IP
-   ```  
-   - Replace the key path and IP as needed  
+### Security
 
-   ![SSH Login](https://github.com/user-attachments/assets/0956a199-d477-4e33-92fd-653a16a74866)
+You can leave it as is
 
-### SSH Connection Timeout Configuration (Optional)
+### Networking
 
-To prevent SSH connections from timing out too quickly (default is usually 15-30 minutes), you can configure the server to send keep-alive signals to maintain active connections for longer periods.
+Here we want to create a new virtual cloud network (for multiple instances you can then later use existing ones so you don't have to redo all the Ingress Rules). What's important is that we want to make sure of 2 things here. We want to create a static public IP address (e.g. once we restart the instance or Oracle Cloud has issues that the IP stays the same (important for 24/7 hosting of various platforms) as well as downloading the private and public ssh keys)
 
-#### Edit SSH Configuration
+<img width="877" height="800" alt="Screenshot 2025-08-03 154342" src="https://github.com/user-attachments/assets/0d1524ec-e64f-43ce-affa-e74adc390ebc" />
+
+Click on **Download Private and Public Key**
+
+<img width="903" height="316" alt="image" src="https://github.com/user-attachments/assets/b367a953-040c-4241-9cb7-193d7a47272b" />
+
+I would suggest you store them somewhere safe immediately (synchronize them with your cloud provider as well) they will get names with the current date when they are downloaded... in my case I just moved them to the Documents folder and stored the command:
+
 ```bash
-sudo nano /etc/ssh/sshd_config
+ssh -i ~/Documents/ssh-key-2025-05-30.key ubuntu@INSERTYOURPUBLICIPADDRESS
 ```
 
-Find and modify these lines (remove the # to uncomment them):
-```
-ClientAliveInterval 600
-ClientAliveCountMax 12
-```
+in a txt file so I can quickly connect to the server when opening the terminal.
 
-#### What these settings mean:
-- `ClientAliveInterval 600` = Server sends a keep-alive signal every 600 seconds (10 minutes)
-- `ClientAliveCountMax 12` = After 12 failed keep-alive attempts, the connection is terminated
-- **Total timeout**: 600 × 12 = 7200 seconds = **2 hours**
+### Boot Volume
 
-#### Apply changes:
-After editing the file, restart the SSH service:
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart ssh
-```
+Here you can click on **"Specify a custom boot volume size and performance setting"** and enter **200GB Boot Volume size** which is still included in the Always Free Tier. Or you can leave it as default (50) and change it later.
 
-#### Security considerations:
-- **Benefit**: Prevents disconnection during long periods of inactivity, useful for long-running tasks
-- **Risk**: Keeps potentially compromised connections alive longer
-- **Recommendation**: Use only on trusted networks or when extended sessions are needed
+### That's it!
+
+Click on **Create Instance** (you can check the estimated costs - I don't think they include the calculation of the Always Free tier Compute as the system doesn't check if you already have instances running just based on the selection)
+
+<img width="1639" height="476" alt="image" src="https://github.com/user-attachments/assets/4454d356-12fb-48ea-aa53-f232a9c17ab9" />
+
+Once the State says **succeeded** you can follow with the next steps
 
 ---
 
-## 4. Reserve a Static IP & Configure DNS
+## 3. Reserve a Static IP & Configure DNS
 
-1. In Oracle Cloud, go to **Network → Virtual Cloud Networks → Public IPs**  
-   - **Assign** a reserved (static) Public IPv4 to your instance  
-   - For detailed instructions, watch this video: https://www.youtube.com/watch?v=-IVG9hTwN_Q
-   - If you already created an instance before, you can also later configure this by clicking on your Instance → Networking and then on your VNIC
+### Reserve a Static IP Address in Oracle Cloud
 
-2. In your domain registrar's **DNS settings**, add an **A-record**:  
+Click on **Networking** and **Reserved Public IPs**...
+
+<img width="1520" height="480" alt="Screenshot 2025-08-03 160811" src="https://github.com/user-attachments/assets/086a3ad6-1f31-4606-82e6-0120c41660a1" />
+
+Click on **Reserve Public IP address** and give it a name.
+
+<img width="718" height="132" alt="image" src="https://github.com/user-attachments/assets/c605ff99-faf3-46d0-b49d-1f4668bd5f29" />
+
+Now go back to **Compute** → **Instances** → select your instance. Go to **Networking** and select your attached VNIC
+
+<img width="1715" height="732" alt="Screenshot 2025-08-03 161504" src="https://github.com/user-attachments/assets/8e5373f5-dcd1-4008-8a2f-68c70337f177" />
+
+Go to **IP administration** and click on **Edit** (don't click on Reserve IPv4 address - that is referring to the private IP)
+
+<img width="1673" height="525" alt="Screenshot 2025-08-03 162341" src="https://github.com/user-attachments/assets/bbfcc40a-15cb-4cac-9122-88cb15afc7c7" />
+
+Here you want to click on **No public IP** and click on **update** (so the current one gets unassigned - this step is a bit annoying)
+
+Then click on **Edit** again. Now there should be a field named **Reserved Public IP** → select the one you created before and click on **Update**.
+
+<img width="679" height="287" alt="Screenshot 2025-08-03 162721" src="https://github.com/user-attachments/assets/cfe37833-29c8-4008-8c26-7a1aa14f4943" />
+
+Now it should say **reserved**. The IP is now not only attached to the instance for life but also does NOT get deleted should you create a new instance and want to move your DNS settings that are pointing to that IP to the new server.
+
+<img width="387" height="75" alt="Screenshot 2025-08-03 162900" src="https://github.com/user-attachments/assets/e0b7907a-fff9-4242-9355-02eeb1b7d824" />
+
+### Configure DNS
+
+In your domain registrar's **DNS settings**, add an **A-record**:
 
 | Host (subdomain)  | Type | Value (IPv4)         |
 |-------------------|:----:|----------------------|
@@ -112,28 +111,36 @@ sudo systemctl restart ssh
 
 ---
 
-## 5. Open HTTP/HTTPS in Oracle Cloud Security Lists
+## 4. Open HTTP/HTTPS in Oracle Cloud Security Lists
 
-1. In the Oracle Cloud Console, navigate to **Networking → Virtual Cloud Networks**.  
-2. Select the VCN associated with your project (only one if new account).  
-3. Click **Security** in the left sidebar, then choose the **Default Security List** for that VCN.  
-4. Switch to the **Security Rules** tab, then click **Add Ingress Rules**.  
-5. Add these rules:  
+Very important is adding Ingress Rules to your server... Why? It tells the server to allow listening on certain ports...
+
+What you need to do to add them:
+Go to **Compute** → **Instances** → your instance
+
+Go to **Networking** and click on the **Subnet** link
+
+<img width="989" height="410" alt="Screenshot 2025-08-03 163320" src="https://github.com/user-attachments/assets/1d53328e-79ca-4557-9067-2318498d8409" />
+
+Then click on **Security** and click on your **default security List**
+
+<img width="802" height="288" alt="Screenshot 2025-08-03 163508" src="https://github.com/user-attachments/assets/df054568-dac4-4bdd-ba69-c5421638a086" />
+
+Further advance to **Security rules** and there you can add ingress rules. Add these rules:
 
 | Source CIDR   | IP Protocol | Port Range | Description         |
 |-------------: |------------:|-----------:|---------------------|
 | `0.0.0.0/0`   | TCP         | `80`       | Allow HTTP traffic  |
 | `0.0.0.0/0`   | TCP         | `443`      | Allow HTTPS traffic |
+| `0.0.0.0/0`   | TCP         | `22`       | Allow SSH traffic (should exist) |
 
-![Screenshot 2025-04-30 125503](https://github.com/user-attachments/assets/4354a2e2-79d3-42fa-aa31-d40d3a8f1e3e)
-![image](https://github.com/user-attachments/assets/d1c3dd0e-02ae-4f1d-be58-511cd9b76824)
+<img width="1404" height="461" alt="image" src="https://github.com/user-attachments/assets/1415c683-373f-4794-8afb-b5006ef4a4da" />
 
-6. Click **Save**.
-7. Note: You can add all sorts of ports here. If you install PostgreSQL or Redis, you just need to add the appropriate port, and it will work.
+**Note:** You can add all sorts of ports here. If you install PostgreSQL or Redis, you just need to add the appropriate port, and it will work.
 
 ---
 
-## 6. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
+## 5. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
 
 > **THIS IS THE MOST IMPORTANT STEP FOR ORACLE CLOUD!**  
 > Even with Oracle Security Lists configured, the Ubuntu instance has its own iptables firewall that blocks ports 80/443 by default. Without this step, Certbot will fail and your applications won't be accessible!
@@ -147,8 +154,8 @@ You will most likely see that the REJECT rule appears BEFORE any ACCEPT rules fo
 
 **Why Oracle Cloud is Different:**
 Oracle Cloud has **TWO firewall layers** that both need configuration:
-1. **Cloud-Level:** Security Groups (Oracle Console)
-2. **Server-Level:** iptables (Ubuntu instance)
+1. **Cloud-Level:** Security Groups (Oracle Console - what we did in Step 4)
+2. **Server-Level:** iptables (Ubuntu instance - what we do now)
 
 Other cloud providers (AWS/GCP) typically only have one firewall layer. Oracle's default iptables REJECT rule blocks all traffic except SSH for security.
 
@@ -183,6 +190,7 @@ sudo iptables -I INPUT 4 -p tcp --dport 80 -j ACCEPT
 sudo iptables -I INPUT 5 -p tcp --dport 443 -j ACCEPT
 
 # Install iptables-persistent to save rules permanently
+sudo apt-get update
 sudo apt-get install iptables-persistent -y
 
 # Save the current iptables rules
@@ -215,8 +223,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 ---
 
-
-## 7. OCI Boot Volume Resize Guide
+## 6. Optional: OCI Boot Volume Resize Guide
 
 This section shows how to expand a boot volume in Oracle Cloud Infrastructure (OCI) without requiring an instance reboot. The process involves resizing the volume in the OCI console and then extending the partition and filesystem from within the running instance.
 
@@ -237,8 +244,6 @@ lsblk
 
 #### Rescan System After Resize
 ```bash
-
-
 echo 1 | sudo tee /sys/class/block/sda/device/rescan
 
 # or alternatively (might not work):
@@ -260,9 +265,9 @@ lsblk
 
 **Note:** This process can be done online without downtime. The system will show warnings about GPT table mismatches until the partition is extended - this is normal and will be automatically corrected.
 
+---
 
-
-## 8. Install n8n, Supabase, or Other Applications
+## 7. Next Steps: Install Applications
 
 From here, the installation process for various self-hosted applications follows the same pattern:
 
@@ -289,11 +294,11 @@ All commands and configurations work exactly the same on Oracle Cloud once you'v
 
 The main differences between Oracle Cloud and GCP setup are:
 1. **Oracle Security Lists** instead of GCP Firewall rules
-2. **Ubuntu iptables firewall** must be configured (Step 6) - this is CRITICAL!
+2. **Ubuntu iptables firewall** must be configured (Step 5) - this is CRITICAL!
 3. Different SSH username (`ubuntu` for Oracle vs your Google account name for GCP)
 4. **Double firewall architecture** requires both cloud-level and server-level configuration
 
-Once these Oracle-specific steps are complete, follow the GCP guide for all n8n installation and configuration steps.
+Once these Oracle-specific steps are complete, you can follow standard guides for application installation.
 
 
 

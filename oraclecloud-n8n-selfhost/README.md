@@ -13,6 +13,8 @@
 
 Setting up an Oracle Cloud VM can be tricky due to Always-Free tier restrictions. By default, free-tier capacity is limited, so provisioning may fail unless you optimize your region choice or account type.
 
+This guide focuses mainly on the iptables that are relevant for N8N to work. For a detailed instruction on how to set up the VM in Oracle Cloud in general check this [guide](https://github.com/JPresting/2---Self-Hosted-Infrastructure/blob/main/oraclecloud-general/Readme.md).
+
 ---
 
 ## Prerequisites
@@ -79,8 +81,8 @@ Setting up an Oracle Cloud VM can be tricky due to Always-Free tier restrictions
 
 1. In Oracle Cloud, go to **Network → Virtual Cloud Networks → Public IPs**  
    - **Assign** a reserved (static) Public IPv4 to your instance  
-   - For detailed instructions, watch this video: https://www.youtube.com/watch?v=-IVG9hTwN_Q
-   - If you already created an instance before, you can also later configure this by clicking on your Instance → Networking and then on your VNIC
+   - For detailed instructions how to do it after you created your instance, check out this [guide]((https://github.com/JPresting/2---Self-Hosted-Infrastructure/blob/main/oraclecloud-general/README.md#3-reserve-a-static-ip--configure-dns))
+   
 
 2. In your domain registrar's **DNS settings**, add an **A-record**:  
 

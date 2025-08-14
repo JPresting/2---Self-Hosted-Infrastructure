@@ -207,8 +207,16 @@ Paste the following content (replace with your actual domain and subdomain):
 ```nginx
 server {
     server_name your-subdomain.your-domain.com;
+    
+    client_max_body_size 500M; # Allows uploads up to 500MB (default 1MB) - fixes 413 errors for video uploads
 
     location / {
+        client_max_body_size 500M; # Same limit for this location block
+        chunked_transfer_encoding off; # Disables HTTP chunking - required for WebSocket connections to work properly
+        proxy_buffering off; # Streams responses immediately instead of collecting full response - better for real-time data
+        proxy_cache off; # No caching - every request hits n8n backend for fresh data
+        proxy_read_timeout 3600; # Single HTTP request can take 1 hour before nginx gives up - for slow API calls
+        
         proxy_pass http://localhost:5678;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

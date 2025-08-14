@@ -1,6 +1,8 @@
 # Self-Hosting Supabase on Oracle Cloud with Docker
 
 A complete guide to set up your own Supabase instance on Oracle Cloud using Docker, Nginx, SSL certificates, and automatic updates.
+The focus here is on the IP Tables and how to set up Supabase with its env variables.
+For a detailed instruction on how to set up the VM in Oracle Cloud in general check this [guide](https://github.com/JPresting/2---Self-Hosted-Infrastructure/blob/main/oraclecloud-general/Readme.md).
 
 ## 📋 Prerequisites
 
@@ -610,7 +612,7 @@ You now have a fully automated, self-hosted Supabase instance that:
 - ✅ **Accessible via custom domain**
 - ✅ **Integrates with n8n** for workflow automation
 
-🔌 Connection Methods Summary
+🔌 Connection Methods Summary --> check this guide on how to set it up within [N8N](https://github.com/JPresting/3---Setup-Guides/tree/main/Supabase-N8N(selfhosted))
 Your self-hosted Supabase supports two integration approaches:
 Method 1: Supabase API (Recommended)
 

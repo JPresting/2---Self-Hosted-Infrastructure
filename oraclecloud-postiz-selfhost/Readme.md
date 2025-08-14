@@ -9,6 +9,8 @@ A complete guide to set up your own Postiz social media management platform on O
 - SSH access to your Oracle Cloud VM
 - Basic command line knowledge
 
+For a detailed instruction on how to set up the VM in Oracle Cloud in general check this [guide](https://github.com/JPresting/2---Self-Hosted-Infrastructure/blob/main/oraclecloud-general/Readme.md).
+
 ## 🚀 Quick Setup
 
 ### Step 1: Connect to Your VM

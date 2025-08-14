@@ -2,6 +2,8 @@
 
 A complete guide to set up your own Open WebUI instance on Oracle Cloud using Docker, Nginx, SSL certificates, and automatic updates.
 
+For a detailed instruction on how to set up the VM in Oracle Cloud in general check this [guide](https://github.com/JPresting/2---Self-Hosted-Infrastructure/blob/main/oraclecloud-general/Readme.md).
+
 ## 📋 Prerequisites
 
 - Oracle Cloud account (free tier works)

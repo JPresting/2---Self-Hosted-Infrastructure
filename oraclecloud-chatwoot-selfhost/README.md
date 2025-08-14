@@ -4,6 +4,8 @@ Quick guide for setting up a VM instance on Oracle Cloud for self-hosting Chatwo
 
 **Key Focus:** The most critical steps are configuring firewall rules (ingress/egress) to allow traffic to reach your applications, and securing a static public IP so you can point your domain's DNS records to a fixed address.
 
+For a detailed instruction on how to set up the VM in Oracle Cloud in general check this [guide](https://github.com/JPresting/2---Self-Hosted-Infrastructure/blob/main/oraclecloud-general/Readme.md).
+
 ## 🚨 CRITICAL: Oracle Cloud's Double Firewall
 
 **Oracle Cloud has TWO firewall layers that BOTH need configuration:**
