@@ -1,6 +1,6 @@
 # Self-Hosting Crawl4AI with Auto-Updates & Basic Authentication
 
-A complete guide to set up your own Crawl4AI instance with Docker, Nginx, SSL certificates, Basic Authentication, and automatic updates. Includes n8n setup integration with different extraction strategies (simple extraction, basic LLM, deep crawl), and local AI models for 100% free crawling (excluding time and energy ;-)).
+A comprehensive guide to deploy your own production-ready Crawl4AI instance featuring Docker containerization, Nginx reverse proxy, SSL certificates, Basic Authentication, and automated updates. Complete with n8n workflow integration examples covering multiple extraction strategies (simple link extraction, LLM-powered content analysis, deep recursive crawling), plus local AI model integration for 100% free web crawling (excluding time and energy costs ;-)).
 
 ## 🌐 DNS Configuration
 
