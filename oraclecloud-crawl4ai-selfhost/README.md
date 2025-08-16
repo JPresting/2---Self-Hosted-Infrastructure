@@ -1,6 +1,6 @@
-# Self-Hosting Crawl4AI mit Auto-Updates & Basic Authentication
+# Self-Hosting Crawl4AI with Auto-Updates & Basic Authentication
 
-Eine komplette Anleitung zum Einrichten deiner eigenen Crawl4AI-Instanz mit Docker, Nginx, SSL-Zertifikaten, Basic Authentication und automatischen Updates.
+A complete guide to set up your own Crawl4AI instance with Docker, Nginx, SSL certificates, Basic Authentication, and automatic updates.
 
 ## 🌐 DNS Configuration
 
@@ -101,18 +101,6 @@ sudo docker ps | grep crawl4ai
 curl -f http://localhost:11235/health
 ```
 
-## 🔒 SSL Certificate Setup
-
-### Get SSL Certificate
-```bash
-sudo certbot certonly --nginx -d crawl.example.com
-```
-
-Follow the prompts:
-- Enter your email address
-- Accept terms of service
-- Choose whether to share email with EFF
-
 ## 🌐 Nginx Configuration with Basic Auth
 
 ### Create Basic Auth Password File
@@ -121,7 +109,7 @@ Follow the prompts:
 sudo bash -c 'echo "admin:$(openssl passwd -apr1 your-secure-password)" > /etc/nginx/.htpasswd'
 ```
 
-### Create Nginx Configuration
+### Create Initial Nginx Configuration (HTTP only)
 ```bash
 sudo nano /etc/nginx/sites-available/crawl4ai.conf
 ```
@@ -130,6 +118,7 @@ sudo nano /etc/nginx/sites-available/crawl4ai.conf
 
 ```nginx
 server {
+    listen 80;
     server_name crawl.example.com;
     
     # Basic Authentication
@@ -149,21 +138,6 @@ server {
         proxy_set_header Authorization $http_authorization;
         client_max_body_size 100M;
     }
-    
-    listen 443 ssl;
-    ssl_certificate /etc/letsencrypt/live/crawl.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/crawl.example.com/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-}
-
-server {
-    if ($host = crawl.example.com) {
-        return 301 https://$host$request_uri;
-    }
-    listen 80;
-    server_name crawl.example.com;
-    return 404;
 }
 ```
 
@@ -173,6 +147,21 @@ sudo ln -s /etc/nginx/sites-available/crawl4ai.conf /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+
+## 🔒 SSL Certificate Setup
+
+### Get SSL Certificate
+```bash
+sudo certbot --nginx -d crawl.example.com
+```
+
+Follow the prompts:
+- Enter your email address
+- Accept terms of service
+- Choose whether to share email with EFF
+- **Choose option 2** to redirect HTTP to HTTPS
+
+**Certbot will automatically update your nginx configuration with SSL settings!**
 
 ## ✅ Test Your Setup
 
