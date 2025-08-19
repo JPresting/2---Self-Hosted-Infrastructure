@@ -106,6 +106,7 @@ curl -f http://localhost:11235/health
 ### Create Basic Auth Password File
 ```bash
 # Generate password hash (replace 'your-secure-password' with your actual password)
+# you can also rename "admin" to e.g. your name. This now protects the API calls as well as the console when entering `crawl.yourdomain.com` in your browser.
 sudo bash -c 'echo "admin:$(openssl passwd -apr1 your-secure-password)" > /etc/nginx/.htpasswd'
 ```
 
