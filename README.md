@@ -1,1 +1,1 @@
-![Kopie von Dein Abschnittstext (1)](https://github.com/user-attachments/assets/1a7134c8-0718-475a-a6c8-8e41173b2c77)
+<img width="2560" height="1440" alt="profile Readme" src="https://github.com/user-attachments/assets/0736bf50-8881-49f7-84f6-f7587b9a2de9" />
