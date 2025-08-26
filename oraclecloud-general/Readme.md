@@ -111,7 +111,7 @@ In your domain registrar's **DNS settings**, add an **A-record**:
 
 ---
 
-## 4. Open HTTP/HTTPS in Oracle Cloud Security Lists
+## 4. Open PORTS (HTTP/HTTPS, etc.) in Oracle Cloud Security Lists
 
 Very important is adding Ingress Rules to your server... Why? It tells the server to allow listening on certain ports...
 
