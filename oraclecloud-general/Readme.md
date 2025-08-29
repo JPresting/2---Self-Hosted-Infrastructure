@@ -138,6 +138,18 @@ Further advance to **Security rules** and there you can add ingress rules. Add t
 
 **Note:** You can add all sorts of ports here. If you install PostgreSQL or Redis, you just need to add the appropriate port, and it will work.
 
+
+Alternatively, to manage rules independently of a specific instance (useful for shared Virtual Cloud Networks across multiple instances):
+
+1. Go to **Networking** → **Virtual Cloud Networks**.
+2. Select your **Virtual Cloud Network**.
+3. Navigate to **Security** → **Security Lists**.
+4. Choose the **Security List** for your VCN.
+5. Click on **Security Rules**.
+6. Add your **Ingress/Egress Rules** as needed.
+
+
+
 ---
 
 ## 5. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
