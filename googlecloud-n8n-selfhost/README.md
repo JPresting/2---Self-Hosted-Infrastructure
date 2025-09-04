@@ -544,6 +544,52 @@ This ensures **n8n always has full access** to its config directory after a rebo
 ![Screenshot 2025-02-18 111733](https://github.com/user-attachments/assets/2c31e3d6-8734-4d2a-9992-01cd11d34042)
 
 
+---
+
+### Advanced Execute Command Usage with Custom Dependencies
+
+#### Using Execute Command Nodes for External Tools
+
+The Execute Command node is extremely powerful when you understand how to leverage it. You can run any command-line tool, Python scripts, or system utilities that aren't directly available as n8n nodes - essentially extending n8n's capabilities infinitely.
+
+#### Installing Python Packages in n8n Docker Container
+
+For tools requiring Python dependencies (like yt-dlp for YouTube downloads), create a custom Docker image:
+
+**1. Create Dockerfile:**
+```bash
+cd ~/n8n
+nano Dockerfile
+```
+
+**Add content:**
+```dockerfile
+FROM n8nio/n8n:latest
+
+USER root
+RUN apk add --no-cache python3 wget && \
+    wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp && \
+    chmod +x /usr/local/bin/yt-dlp
+
+USER node
+```
+
+**2. Build custom image:**
+```bash
+sudo docker build -t n8n-with-ytdlp .
+```
+
+**3. Update your container start command to use `n8n-with-ytdlp` instead of `n8nio/n8n`**
+
+**4. Adapt update script:**
+Replace `sudo docker pull n8nio/n8n:latest` with `sudo docker build -t n8n-with-ytdlp /home/ubuntu/n8n/` (or whatever your path is) and change the image name in the docker run command to `n8n-with-ytdlp`.
+
+**Usage in Execute Command node:**
+```bash
+yt-dlp -x --audio-format mp3 -o output-{{ $json.now_unix }}.mp3 '{{ $json.videoUrl }}'
+```
+
+
 
 
 **Need a more advanced deployment, integration, or enterprise automation?** Visit [Stardawnai.com](https://stardawnai.com) for professional consulting and development on AI-driven process automation, SAP integration, self-hosted enterprise N8N workflows, and custom hybrid infrastructure solutions tailored to your business needs.
