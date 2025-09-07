@@ -377,7 +377,6 @@ sudo docker run -d --restart unless-stopped -it \
   -e N8N_HOST="myn8n.your-domain.com" \
   -e WEBHOOK_TUNNEL_URL="https://myn8n.your-domain.com/" \
   -e WEBHOOK_URL="https://myn8n.your-domain.com/" \
-  -e N8N_ENABLE_RAW_EXECUTION="true" \
   -e NODE_FUNCTION_ALLOW_BUILTIN="crypto" \ # adding Javascript Package Crypto just to show how the packages would be added
   -e NODE_FUNCTION_ALLOW_EXTERNAL="" \ # needed for external 
   -e N8N_PUSH_BACKEND=websocket \
