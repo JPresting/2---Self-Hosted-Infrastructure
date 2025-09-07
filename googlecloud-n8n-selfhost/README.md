@@ -166,7 +166,7 @@ n8nio/n8n
       -e N8N_HOST="your-subdomain.your-domain.com" \
       -e WEBHOOK_TUNNEL_URL="https://your-subdomain.your-domain.com/" \
       -e WEBHOOK_URL="https://your-subdomain.your-domain.com/" \
-      -e N8N_ENABLE_RAW_EXECUTION="true" \
+      -e N8N_BINARY_DATA_MODE="memory" \
       -e NODE_FUNCTION_ALLOW_BUILTIN="crypto" \
       -e NODE_FUNCTION_ALLOW_EXTERNAL="" \
       -e N8N_PUSH_BACKEND=websocket \
@@ -378,6 +378,7 @@ sudo docker run -d --restart unless-stopped -it \
   -e WEBHOOK_TUNNEL_URL="https://myn8n.your-domain.com/" \
   -e WEBHOOK_URL="https://myn8n.your-domain.com/" \
   -e NODE_FUNCTION_ALLOW_BUILTIN="crypto" \ # adding Javascript Package Crypto just to show how the packages would be added
+  -e N8N_BINARY_DATA_MODE="memory" \ # for instances that need a lot of loops handling large data e.g. Sales
   -e NODE_FUNCTION_ALLOW_EXTERNAL="" \ # needed for external 
   -e N8N_PUSH_BACKEND=websocket \
   -v /home/mygoogleaccount/.n8n:/home/node/.n8n \
