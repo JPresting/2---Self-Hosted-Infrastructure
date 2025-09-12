@@ -384,8 +384,8 @@ sudo docker run -d --restart unless-stopped -it \
   -v /home/mygoogleaccount/.n8n:/home/node/.n8n \
   n8nio/n8n
 
-# Clean up old Docker images
-sudo docker image prune -af
+# Clean up old unused Docker images - don't use image prune -af 
+sudo docker image prune -f
 ```
 Save with **Ctrl + O, Enter**, then exit with **Ctrl + X**.
 
@@ -491,7 +491,7 @@ Hope this helps you set up and automate your n8n instance! 🚀 For more on how 
 
 ---
 
-## Appendix: Additional Note
+## Appendix #1: Additional Note
 
 ### **Fixing n8n 502 Bad Gateway after GCP VM Restart (if you changed your CPU/configs)**  
 
@@ -546,7 +546,7 @@ This ensures **n8n always has full access** to its config directory after a rebo
 
 ---
 
-### Advanced Execute Command Usage with Custom Dependencies
+## Appendix #2: Advanced Execute Command Usage with Custom Dependencies
 
 #### Using Execute Command Nodes for External Tools
 
@@ -588,6 +588,66 @@ Replace `sudo docker pull n8nio/n8n:latest` with `sudo docker build -t n8n-with-
 ```bash
 yt-dlp -x --audio-format mp3 -o output-{{ $json.now_unix }}.mp3 '{{ $json.videoUrl }}'
 ```
+
+
+
+
+## Appendix #3: Emergency Debugging When Everything Breaks
+
+### When SSH Won't Connect Anymore
+
+**Enable serial console access:**
+1. VM instances → Your VM → Edit  <img width="1184" height="443" alt="Screenshot 2025-09-12 122351" src="https://github.com/user-attachments/assets/db2a8e73-8f69-44b0-afbd-88c7b4a790ca" />
+
+2. Check "Enable connecting to serial ports" → Save   <img width="707" height="443" alt="Screenshot 2025-09-12 122605" src="https://github.com/user-attachments/assets/d9e0be17-cade-4990-8100-2abd2d178c30" />
+
+3. VM overview → "Connect to serial console"   <img width="838" height="555" alt="Screenshot 2025-09-12 122718" src="https://github.com/user-attachments/assets/4f3b2d1e-9450-4c65-8fe5-e5bd39e90b24" />
+
+**If serial console shows spam/errors and won't let you type:**
+- Press **Ctrl+C** multiple times to stop running processes
+- Press **Enter** to get a login prompt
+- If still spamming: **Ctrl+Z** then **Enter**
+- Login with your username/password
+
+### Diagnose What Broke
+
+```bash
+# Check basic system health
+df -h                    # Disk full = SSH fails
+free -h                  # Out of RAM = system hangs
+sudo docker ps -a        # Container status
+
+# Check n8n specifically  
+sudo docker logs n8n --tail=50    # What error killed it?
+```
+
+### Fix Common Production Failures
+
+**License renewal spam (kills performance):**
+```bash
+sudo docker exec -it n8n /bin/sh
+rm -rf /home/node/.n8n/license*
+exit
+sudo docker restart n8n
+```
+
+**Disk full:**
+```bash
+sudo docker system prune -f
+# Delete old backups (keep newest 2)
+sudo find /home/yourgoogleaccount/.n8n-backup* -type d | sort | head -n -2 | xargs rm -rf
+```
+
+**Container completely broken:**
+```bash
+sudo docker stop n8n
+sudo docker rm n8n
+sudo docker pull n8nio/n8n:latest
+# Run your original docker run command
+```
+
+**VM restart (last resort):**
+- Google Console → VM instances → Your VM → Stop → Start
 
 
 
