@@ -1,9 +1,9 @@
 
-# Oracle Cloud Infrastructure Setup Guide
+# ♦️Oracle Cloud Infrastructure Setup Guide♦️
 
 Generally important for Oracle cloud setup and interactions...
 
-## 1. Get an Instance in the First Place
+## 📍1. Get an Instance in the First Place
 
 > "To guarantee instance availability, I recommend upgrading to **Pay-As-You-Go**.
 > 1. Go to **Billing & Cost Management**  **Upgrade and Manage Payment**.
@@ -15,7 +15,7 @@ Generally important for Oracle cloud setup and interactions...
 
 <img width="1840" height="586" alt="image" src="https://github.com/user-attachments/assets/2cf635ca-5347-47ab-80e7-e83dc38ebd20" />
 
-## 2. Create an Instance
+## 📍2. Create an Instance
 
 Go to the burger menu icon on the top left and click on **Compute** → **Instances**
 
@@ -75,7 +75,7 @@ Once the State says **succeeded** you can follow with the next steps
 
 ---
 
-## 3. Reserve a Static IP & Configure DNS
+## 📍3. Reserve a Static IP & Configure DNS
 
 ### Reserve a Static IP Address in Oracle Cloud
 
@@ -117,7 +117,7 @@ In your domain registrar's **DNS settings**, add an **A-record**:
 
 ---
 
-## 4. Open PORTS (HTTP/HTTPS, etc.) in Oracle Cloud Security Lists
+## 📍4. Open PORTS (HTTP/HTTPS, etc.) in Oracle Cloud Security Lists
 
 Very important is adding Ingress Rules to your server... Why? It tells the server to allow listening on certain ports...
 
@@ -158,7 +158,7 @@ Alternatively, to manage rules independently of a specific instance (useful for 
 
 ---
 
-## 5. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
+## 📍5. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
 
 > **THIS IS THE MOST IMPORTANT STEP FOR ORACLE CLOUD!**  
 > Even with Oracle Security Lists configured, the Ubuntu instance has its own iptables firewall that blocks ports 80/443 by default. Without this step, Certbot will fail and your applications won't be accessible!
@@ -240,7 +240,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 > **Note:** This is the KEY DIFFERENCE between Oracle Cloud and GCP. GCP doesn't have this local firewall issue, but Oracle Ubuntu instances do!
 
 ---
-## 6. ⚠️ CRITICAL: Setup a Budget and Spending Alarm
+## 📍6. ⚠️ CRITICAL: Setup a Budget and Spending Alarm
 
 First go to Budgets and create a new Budget
 
@@ -254,7 +254,7 @@ You can later edit the budget and add as many rules as you want so you effective
 
 ---
 
-## 7. ⚠️ CRITICAL FOR LATER: Look for Unattached Volume Storage or Compute
+## 📍7. ⚠️ CRITICAL FOR LATER: Look for Unattached Volume Storage or Compute
 
 This is very important (make sure you enter the link path exactly as I marked it in the image) as this shows you all the hidden costs - you can easily stop or terminate instances and will not pay for compute but other units like the block storage will continue to cost you money if you aren't careful.
 
@@ -271,7 +271,7 @@ Click on **Implement selected** and then on **Delete**:
 
 ---
 
-## 8. Optional: OCI Boot Volume Resize Guide
+## 📍8. Optional: OCI Boot Volume Resize Guide
 
 This section shows how to expand a boot volume in Oracle Cloud Infrastructure (OCI) without requiring an instance reboot. The process involves resizing the volume in the OCI console and then extending the partition and filesystem from within the running instance.
 
@@ -315,7 +315,7 @@ lsblk
 
 ---
 
-## 7. Next Steps: Install Applications
+## 📍9. Next Steps: Install Applications
 
 From here, the installation process for various self-hosted applications follows the same pattern:
 
