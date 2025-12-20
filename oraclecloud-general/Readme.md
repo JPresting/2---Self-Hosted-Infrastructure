@@ -234,8 +234,29 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 > **Note:** This is the KEY DIFFERENCE between Oracle Cloud and GCP. GCP doesn't have this local firewall issue, but Oracle Ubuntu instances do!
 
 ---
+## 6. ⚠️ CRITICAL: Setup a Budget and Spending Alarm
 
-## 6. Optional: OCI Boot Volume Resize Guide
+First go to Budgets and create a new Budget
+
+![image](https://github.com/user-attachments/assets/fb896c74-9c33-497a-9b34-7df23554dd27)
+
+When creating a budget you should also add an alarm:
+
+![image](https://github.com/user-attachments/assets/4c9ffce8-842c-408d-9a2f-e9dec9a3a509)
+
+You can later edit the budget and add as many rules as you want so you effectively only need one Budget. I would recommend using the minimum of 1€ if you are planning to use the Always Free Tier (which is generous enough) so you get notified immediately as soon as spending occurs. This can happen due to unused Block volumes or if you misselected a Compute Unit that is not part of the Always-Free.
+
+---
+
+## 7. ⚠️ CRITICAL FOR LATER: Look for Unattached Volume Storage or Compute
+
+This is very important (make sure you enter the link path exactly as I marked it in the image) as this shows you all the hidden costs - you can easily stop or terminate instances and will not pay for compute but other units like the block storage will continue to cost you money if you aren't careful.
+
+![image](https://github.com/user-attachments/assets/a19cfb48-4b30-48d9-9a61-c4c0ba720712)
+
+---
+
+## 8. Optional: OCI Boot Volume Resize Guide
 
 This section shows how to expand a boot volume in Oracle Cloud Infrastructure (OCI) without requiring an instance reboot. The process involves resizing the volume in the OCI console and then extending the partition and filesystem from within the running instance.
 
