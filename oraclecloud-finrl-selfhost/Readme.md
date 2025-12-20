@@ -1,4 +1,4 @@
-# FinRL Deployment Guide 🚀
+# 💎FinRL Deployment Guide💎
 
 Complete installation and deployment guide for FinRL with Jupyter Lab on Ubuntu server with SSL and domain access.
 
