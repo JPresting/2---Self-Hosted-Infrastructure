@@ -5,7 +5,13 @@ Generally important for Oracle cloud setup and interactions...
 
 ## 1. Get an Instance in the First Place
 
-In order to get an instance in the first place it would be best to upgrade your account to a pay-as-you-go. My experience has been that as soon as you upgrade to pay as you go you can instantly get an instance in your claimed region. You just need to watch out to stay in the always free tier limits. If that's not an intent for you in the first place this does not matter but you need to go to Billing & Cost Management and Upgrade and Manage Payment and upgrade to pay as you go. Their systems are fairly reliable in checking for existing users so it's really just one account per person/credit card.
+> "To guarantee instance availability, I recommend upgrading to **Pay-As-You-Go**.
+> 1. Go to **Billing & Cost Management**  **Upgrade and Manage Payment**.
+> 2. Once upgraded, instances in your region usually become available immediately.
+> 3. **Warning:** Ensure you configure your resources within the **Always Free** limits to avoid being charged.
+> 
+
+> *Note: Oracle's fraud detection is strict regarding the limit of one account per person/credit card.*"
 
 <img width="1840" height="586" alt="image" src="https://github.com/user-attachments/assets/2cf635ca-5347-47ab-80e7-e83dc38ebd20" />
 
