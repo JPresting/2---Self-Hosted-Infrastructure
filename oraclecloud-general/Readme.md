@@ -1,5 +1,4 @@
-
-# ♦️Oracle Cloud Infrastructure Setup Guide♦️
+# 💎Oracle Cloud Infrastructure Setup Guide💎
 
 Generally important for Oracle cloud setup and interactions...
 
