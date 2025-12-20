@@ -1,4 +1,4 @@
-# RunPod Ollama Setup with Persistent Storage
+# 💎RunPod.io Ollama Setup with Persistent Storage💎
 
 A complete guide to setting up Ollama on RunPod with automatic model persistence and cost optimization.
 
