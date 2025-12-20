@@ -117,9 +117,9 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
 1. Log in to Render and click **New → Web Service**.
 2. Choose **Public Git repository**.
 3. Paste your repo URL:
-
+e.g.
    ```
-   https://github.com/JimPresting/meta-resumable-upload-api
+   https://github.com/JPresting/meta-resumable-upload-api
    ```
 4. Click **Continue**.
 
