@@ -9,7 +9,7 @@
 
 ---
 
-# Oracle-Cloud-N8N-Setup
+# 💎Oracle-Cloud-N8N-Setup💎
 
 Setting up an Oracle Cloud VM can be tricky due to Always-Free tier restrictions. By default, free-tier capacity is limited, so provisioning may fail unless you optimize your region choice or account type.
 
@@ -25,7 +25,7 @@ This guide focuses mainly on the iptables that are relevant for N8N to work. For
 
 ---
 
-## 1. Register & Optimize Your Account
+## 📍1. Register & Optimize Your Account
 
 1. **Sign up** at cloud.oracle.com  
    - Provide Account Name, Email, Password  
@@ -43,7 +43,7 @@ This guide focuses mainly on the iptables that are relevant for N8N to work. For
 
 ---
 
-## 2. Create Your Always-Free VM
+## 📍2. Create Your Always-Free VM
 
 1. From the Oracle Cloud **Dashboard**, click **Create Instance**.  
 2. Under **Shape**, choose an Always-Free configuration:  
@@ -59,7 +59,7 @@ This guide focuses mainly on the iptables that are relevant for N8N to work. For
 
 ---
 
-## 3. SSH Access
+## 📍3. SSH Access
 
 1. Locate your VM's **Public IPv4**:  
    - **Compute → Instances → Your Instance → Networking**  
@@ -77,7 +77,7 @@ This guide focuses mainly on the iptables that are relevant for N8N to work. For
 
 ---
 
-## 4. Reserve a Static IP & Configure DNS
+## 📍4. Reserve a Static IP & Configure DNS
 
 1. In Oracle Cloud, go to **Network → Virtual Cloud Networks → Public IPs**  
    - **Assign** a reserved (static) Public IPv4 to your instance  
@@ -94,7 +94,7 @@ This guide focuses mainly on the iptables that are relevant for N8N to work. For
 
 ---
 
-## 5. Open HTTP/HTTPS in Oracle Cloud Security Lists
+## 📍5. Open HTTP/HTTPS in Oracle Cloud Security Lists
 
 1. In the Oracle Cloud Console, navigate to **Networking → Virtual Cloud Networks**.  
 2. Select the VCN associated with your project (only one if new account).  
@@ -115,7 +115,7 @@ This guide focuses mainly on the iptables that are relevant for N8N to work. For
 
 ---
 
-## 6. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
+## 📍6. ⚠️ CRITICAL: Configure Ubuntu iptables Firewall ⚠️
 
 > **THIS IS THE MOST IMPORTANT STEP FOR ORACLE CLOUD!**  
 > Even with Oracle Security Lists configured, the Ubuntu instance has its own iptables firewall that blocks ports 80/443 by default. Without this step, Certbot will fail and your n8n instance won't be accessible!
@@ -145,7 +145,7 @@ You should see the rules for ports 80 and 443 in the list.
 
 ---
 
-## 7. Install n8n
+## 📍7. Install n8n
 
 From here, the installation process is identical to the GCP guide:
 
@@ -162,7 +162,7 @@ All commands and configurations from the GCP guide work exactly the same on Orac
 
 ---
 
-## Summary
+## 📍Summary
 
 The main differences between Oracle Cloud and GCP setup are:
 1. **Oracle Security Lists** instead of GCP Firewall rules
