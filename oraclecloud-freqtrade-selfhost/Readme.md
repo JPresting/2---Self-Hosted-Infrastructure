@@ -1,8 +1,8 @@
-# FreqTrade Installation Guide for ARM64 Ubuntu Server
+# 💎FreqTrade Installation Guide for ARM64 Ubuntu Server💎
 
 Complete installation guide for FreqTrade on ARM64 Ubuntu servers, addressing common compilation issues and providing a production-ready setup.
 
-## Table of Contents
+## ◾Table of Contents
 - [Prerequisites](#prerequisites)
 - [Why Conda Instead of Virtual Environment](#why-conda-instead-of-virtual-environment)
 - [Installation Steps](#installation-steps)
@@ -13,14 +13,14 @@ Complete installation guide for FreqTrade on ARM64 Ubuntu servers, addressing co
 - [Auto-Updates](#auto-updates)
 - [Troubleshooting](#troubleshooting)
 
-## Prerequisites
+## ◾Prerequisites
 
 - Ubuntu 22.04+ ARM64 server
 - Domain name with DNS A record configured (e.g., freqtrade.yourdomain.com)
 - Root/sudo access
 - Basic Linux command line knowledge
 
-## Why Conda Instead of Virtual Environment
+## ◾Why Conda Instead of Virtual Environment
 
 **Problem**: Standard Python virtual environments on ARM64 servers often fail when installing FreqTrade due to:
 - TA-Lib compilation failures (missing ARM64 pre-built packages)
@@ -37,9 +37,9 @@ pip install freqtrade[all]  # Fails at TA-Lib compilation
 sudo apt install libta-lib-dev  # Not available for ARM64 Ubuntu
 ```
 
-## Installation Steps
+## ◾Installation Steps
 
-### Step 1: Install Miniforge (ARM64)
+### 📍Step 1: Install Miniforge (ARM64)
 
 ```bash
 # Download Miniforge for ARM64
@@ -57,7 +57,7 @@ echo 'source $HOME/miniforge3/etc/profile.d/conda.sh' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Step 2: Create Directory Structure
+### 📍Step 2: Create Directory Structure
 
 ```bash
 # Create organized directory structure
@@ -69,7 +69,7 @@ sudo chown -R $USER:$USER /opt/trading
 ln -s /opt/trading ~/trading
 ```
 
-### Step 3: Create FreqTrade Environment
+### 📍Step 3: Create FreqTrade Environment
 
 ```bash
 # Create conda environment with Python 3.12
@@ -82,7 +82,7 @@ conda activate freqtrade
 python -m pip install -U pip setuptools wheel
 ```
 
-### Step 4: Install FreqTrade
+### 📍Step 4: Install FreqTrade
 
 ```bash
 # Navigate to FreqTrade directory
@@ -95,7 +95,7 @@ pip install freqtrade
 freqtrade --version
 ```
 
-### Step 5: Create Configuration Directories
+### 📍Step 5: Create Configuration Directories
 
 ```bash
 # Create configuration structure
@@ -105,9 +105,9 @@ mkdir -p config/user_data/{data,logs,notebooks,plot,strategies,hyperopts,backtes
 freqtrade create-userdir --userdir config/user_data
 ```
 
-## Configuration
+## ◾Configuration
 
-### Step 1: Base Configuration
+### 📍Step 1: Base Configuration
 
 ```bash
 # Create base configuration file
@@ -146,7 +146,7 @@ cat > /opt/trading/freqtrade/config/config.json << 'EOL'
 EOL
 ```
 
-### Step 2: Web Server Configuration
+### 📍Step 2: Web Server Configuration
 
 Create JWT secret and configuration:
 ```bash
@@ -174,7 +174,7 @@ EOL
 nano /opt/trading/freqtrade/config/webserver_config.json
 ```
 
-### Step 3: Install Web UI
+### 📍Step 3: Install Web UI
 
 ```bash
 # Activate FreqTrade environment
@@ -184,9 +184,9 @@ conda activate freqtrade
 freqtrade install-ui
 ```
 
-## Service Setup
+## ◾Service Setup
 
-### Step 1: Configure Firewall
+### 📍Step 1: Configure Firewall
 
 ```bash
 # Add port for FreqTrade API
@@ -194,7 +194,7 @@ sudo iptables -I INPUT 10 -p tcp --dport 9501 -j ACCEPT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ```
 
-### Step 2: Create Systemd Service
+### 📍Step 2: Create Systemd Service
 
 ```bash
 # Create systemd service file
@@ -220,7 +220,7 @@ WantedBy=multi-user.target
 EOL
 ```
 
-### Step 3: Enable and Start Service
+### 📍Step 3: Enable and Start Service
 
 ```bash
 # Reload systemd and start service
@@ -232,9 +232,9 @@ sudo systemctl start freqtrade-webserver
 sudo systemctl status freqtrade-webserver
 ```
 
-## Web Server Setup
+## ◾Web Server Setup
 
-### Step 1: Install and Configure Nginx
+### 📍Step 1: Install and Configure Nginx
 
 ```bash
 # Install Nginx
@@ -265,7 +265,7 @@ EOL
 sudo nano /etc/nginx/sites-available/freqtrade.conf
 ```
 
-### Step 2: Enable Nginx Configuration
+### 📍Step 2: Enable Nginx Configuration
 
 ```bash
 # Enable site
@@ -278,7 +278,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-## SSL Certificate
+## ◾SSL Certificate
 
 ```bash
 # Install Certbot
@@ -290,9 +290,9 @@ sudo certbot --nginx -d freqtrade.yourdomain.com
 # Follow the prompts to configure SSL
 ```
 
-## Auto-Updates
+## ◾Auto-Updates
 
-### Step 1: Configure Sudoers for Service Management
+### 📍Step 1: Configure Sudoers for Service Management
 
 ```bash
 # Create sudoers configuration for service management
@@ -304,7 +304,7 @@ EOL
 sudo chmod 0440 /etc/sudoers.d/freqtrade-service
 ```
 
-### Step 2: Create Update Script
+### 📍Step 2: Create Update Script
 
 ```bash
 # Create the update script
@@ -355,7 +355,7 @@ sudo touch /var/log/freqtrade_update.log
 sudo chown ubuntu:ubuntu /var/log/freqtrade_update.log /opt/trading/backups
 ```
 
-### Step 3: Schedule Updates
+### 📍Step 3: Schedule Updates
 
 ```bash
 # Add to crontab (Sunday 2 AM)
@@ -365,7 +365,7 @@ crontab -e
 0 2 * * 0 /bin/bash /opt/trading/freqtrade/update_freqtrade.sh >/dev/null 2>&1
 ```
 
-## Troubleshooting
+## ◾Troubleshooting
 
 ### Common Issues
 
