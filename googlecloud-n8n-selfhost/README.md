@@ -1,7 +1,7 @@
-# Self-Hosting N8N on the Google Cloud with Auto-Updates
+# ♦️Self-Hosting N8N on the Google Cloud with Auto-Updates
 Guide on how to fully self-host n8n in a GCP project with up to no monthly costs (depending on the workflows you might pay networking costs, see: [GCP Network Pricing](https://cloud.google.com/vpc/network-pricing)) as well as auto-update the Docker image whenever the open-source GitHub repo of n8n has another release. The only two things you need to replicate this process 100% are a **credit/debit card** and a **domain**.
 
-# Step 1: Setting up the GCP
+# 📍Step 1: Setting up the GCP
 
 1. Go to cloud.google.com and click on Console
 2. Click on Try for free
@@ -16,7 +16,7 @@ Guide on how to fully self-host n8n in a GCP project with up to no monthly costs
 ![image](https://github.com/user-attachments/assets/5ee0947d-3879-4d6b-8489-ebcf41aa2c18)
 7. Whichever way you are using it, when selecting your project in the top left, it should say, "You've activated your full account."
 
-# Step 2: Setting up the Cloud VM Instance
+# 📍Step 2: Setting up the Cloud VM Instance
 
 Now we set up the instance where N8N will run.
 
@@ -53,7 +53,7 @@ Select e2-micro
 Lastly Select "Allow" on these 3 traffic sources. You can edit that later in the VM instance as well but we need it in order to reach our domain via our subdomain.
 ![image](https://github.com/user-attachments/assets/d6bf6370-64c9-4417-9dcd-ab78b8188059)
 
-# Step 2.1: Connecting via Local SSH (Recommended Alternative)
+# 📍Step 2.1: Connecting via Local SSH (Recommended Alternative)
 
 Instead of using the unreliable browser SSH, use your local terminal for a stable connection:
 
@@ -96,7 +96,7 @@ gcloud compute ssh YOUR-VM-NAME --zone=YOUR-ZONE
 
 This method prevents the random disconnects that occur with browser SSH and provides a much more stable connection.
 
-# Step 3: Setting up N8N
+# 📍Step 3: Setting up N8N
 
 Now, go back to the **VM instance** we created and click on **"Connect SSH."** or use the local SSH method above.
 ![image](https://github.com/user-attachments/assets/038ee935-c057-4067-b5f0-e155eaf1855d)
@@ -122,7 +122,7 @@ Click on Y
     ```bash
     sudo systemctl enable docker
 
-## Step 3.1: Setting up a Subdomain to point to your Google Cloud Instance
+## 📍Step 3.1: Setting up a Subdomain to point to your Google Cloud Instance
 
 Now we want to add a subdomain of your domain which makes it easy to access your N8N instance from everywhere (dont worry you will need an account). 
 With your domain provider go to Edit DNS settings (every domain provider has this) then you want to add a New Record. 
@@ -133,7 +133,7 @@ copy the external IP address which we made static before:
 For the **new record**, select **Type A** and name it whatever you like, but keep it **short and precise**. **Points to:** Paste the **external IP address**. **TTL:** Default is **14400**; you can leave it as is.
 ![image](https://github.com/user-attachments/assets/615b06e7-ab76-4dbc-8927-8dc355f4ba73)
 
-## Step 3.2: Starting n8n in Docker
+## 📍Step 3.2: Starting n8n in Docker
 Run the following command to start n8n in Docker. Replace **your-domain.com** with your actual domain name. **Make sure you don't copy and paste it with the "bash" part and the three backticks (` ``` `), or it won't work.**
 
 We are using a subdomain, it should look like this: 
@@ -181,7 +181,7 @@ n8nio/n8n
 It now downloads the latest **n8n** image. Since this is the first installation, it obviously can't find **n8n:latest** in your directory, so that's not a problem.
 ![image](https://github.com/user-attachments/assets/dd85386c-8807-43af-b25a-77ab298a659e)
 
-## Step 3.3: Installing Nginx
+## 📍Step 3.3: Installing Nginx
 
 We need **Nginx** as a **reverse proxy** to route traffic to n8n, handle **SSL encryption**, and allow access via a custom domain. Without it, n8n would only be reachable through its internal port (5678), which is not ideal for public access. An alternative is using a **Google Cloud Load Balancer**, but it's more complex and can incur additional costs. Nginx is lightweight, free, and gives full control over traffic and security. It simplifies setup while ensuring a secure and accessible deployment.
 
@@ -285,7 +285,7 @@ server {
 ```
 
 
-## Step 3.4: Setting up SSL with Certbot
+## 📍Step 3.4: Setting up SSL with Certbot
 
 Certbot will obtain and install an SSL certificate from Let's Encrypt.
 
@@ -337,7 +337,7 @@ sudo certbot --nginx -d your-actual-domain.com
 
 
 
-# Step 4: Setting up Auto Updates for N8N
+# 📍Step 4: Setting up Auto Updates for N8N
 
 Since the official n8n repository regularly adds new features, it's important to stay updated without manually downloading, uploading workflows, or reconfiguring credentials. To automate this, we create a **cronjob** that checks for new **stable releases** (not pre-releases) in the n8n GitHub repository every **Sunday night**. If an update is available, it automatically updates the Docker image. Before updating, it saves your configurations in a new folder named **update_n8n**.
 
@@ -414,7 +414,7 @@ Save and exit.
 0 3 * * 0 means:  
 - **0** → Minute (Runs at minute **0**, i.e., the start of the hour)  
 - **3** → Hour (Runs at **3 AM**)  
-- **`*`** → Day of the month (Runs **every day of the month**)  
+- **`*`** → Day of the month (Runs **every day within a month**)  
 - **`*`** → Month (Runs **every month**)  
 - **`0`** → Day of the week (**0 = Sunday**, 1 = Monday, ..., 6 = Saturday)  
 
@@ -491,7 +491,7 @@ Hope this helps you set up and automate your n8n instance! 🚀 For more on how 
 
 ---
 
-## Appendix #1: Additional Note
+## 📍Appendix #1: Additional Note
 
 ### **Fixing n8n 502 Bad Gateway after GCP VM Restart (if you changed your CPU/configs)**  
 
@@ -546,7 +546,7 @@ This ensures **n8n always has full access** to its config directory after a rebo
 
 ---
 
-## Appendix #2: Advanced Execute Command Usage with Custom Dependencies
+## 📍Appendix #2: Advanced Execute Command Usage with Custom Dependencies
 
 #### Using Execute Command Nodes for External Tools
 
@@ -592,7 +592,7 @@ yt-dlp -x --audio-format mp3 -o output-{{ $json.now_unix }}.mp3 '{{ $json.videoU
 
 
 
-## Appendix #3: Emergency Debugging When Everything Breaks
+## 📍Appendix #3: Emergency Debugging When Everything Breaks
 
 ### When SSH Won't Connect Anymore
 
