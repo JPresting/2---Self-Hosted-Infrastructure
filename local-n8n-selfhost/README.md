@@ -1,4 +1,4 @@
-# ♦️N8N Local Installation with Auto-Start on Windows
+# 💎N8N Local Installation with Auto-Start on Windows💎
 
 A comprehensive guide to install n8n locally using Docker with automatic startup functionality and quick-restart options.
 
