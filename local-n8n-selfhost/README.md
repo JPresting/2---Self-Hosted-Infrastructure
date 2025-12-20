@@ -1,4 +1,4 @@
-# N8N Local Installation with Auto-Start on Windows
+# ♦️N8N Local Installation with Auto-Start on Windows
 
 A comprehensive guide to install n8n locally using Docker with automatic startup functionality and quick-restart options.
 
@@ -25,7 +25,7 @@ C:\Users\[USERNAME]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startu
 └── n8n-startup.bat                     # Auto-start script
 ```
 
-## Step 1: Create N8N Data Directory
+## 📍Step 1: Create N8N Data Directory
 
 The first step involves creating a dedicated directory where n8n will store all its data, including workflows, credentials, and configuration files. This approach ensures data persistence across container restarts and updates.
 
@@ -35,7 +35,7 @@ mkdir C:\Users\[USERNAME]\Documents\n8n-local
 
 Replace `[USERNAME]` with your actual Windows username throughout this guide.
 
-## Step 2: Install N8N with Docker
+## 📍Step 2: Install N8N with Docker
 
 Execute the following Docker command to create and start your n8n container. This command includes comprehensive environment variables that optimize n8n for local development work.
 
@@ -88,7 +88,7 @@ The environment variables included in this setup serve specific purposes that en
 - `N8N_METRICS="true"` enables performance metrics collection
 - `N8N_LOG_LEVEL="info"` provides detailed logging for development purposes
 
-## Step 3: Verify Installation
+## 📍Step 3: Verify Installation
 
 After running the Docker command, verify that your n8n installation is functioning correctly:
 
@@ -105,7 +105,7 @@ dir C:\Users\[USERNAME]\Documents\n8n-local
 
 Navigate to `http://localhost:5678` in your browser to access the n8n interface and complete the initial setup by creating your administrator account.
 
-## Step 4: Create Auto-Start Script
+## 📍Step 4: Create Auto-Start Script
 
 To ensure n8n starts automatically when your computer boots, create an auto-start script that will be placed in the Windows startup folder. This script includes user interaction to prevent unwanted automatic starts.
 
@@ -219,7 +219,7 @@ This auto-start script incorporates several intelligent features designed to pro
 
 **Error Handling:** The script validates user input and provides clear feedback throughout the startup process.
 
-## Step 5: Create Quick-Start Shortcut
+## 📍Step 5: Create Quick-Start Shortcut
 
 For situations where you need to manually restart n8n after closing Docker Desktop, create a convenient shortcut in your Documents folder.
 
