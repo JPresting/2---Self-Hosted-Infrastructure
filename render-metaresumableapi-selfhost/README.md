@@ -1,9 +1,9 @@
-# Meta's Resumable Upload API
+# 💎Meta's Resumable Upload API💎
 Meta's Resumable API with Node.JS
 
-## 1. Clone the repo and move it to the project directory
+## 📍1. Clone the repo and move it to the project directory
 
-## 2. Update your credentials in .env
+## 📍2. Update your credentials in .env
 ```
 PORT=2002
 // META GRAPH API AND IT's VERSION
@@ -16,17 +16,17 @@ META_ACCESS_TOKEN=xxxxxxx
 META_BUSINESS_ACC_ID=xxxxxxx
 ```
 
-## 3. NPM install
+## 📍3. NPM install
 ```
 npm install
 ```
 
-## 5. Run
+## 📍4. Run
 ```
 node index.js
 ```
 
-## 6. Upload media using resumable upload API
+## 📍5. Upload media using resumable upload API
 Use Postman or any API explorer, Select your media file for upload
 ```
 curl --location 'http://localhost:2002/uploadMedia' \
@@ -44,7 +44,7 @@ curl --location 'http://localhost:2002/uploadMedia' \
 #### This is a request and response 
 ![259396102-b6c518a5-3245-4bd5-9363-f3af318e6804](https://github.com/turivishal/meta-resumable-upload-api/assets/10988772/312fb5bf-9060-4e97-8d09-eb7c2eda3fe4)
 
-## 7. Create Template
+## 📍6. Create Template
 Put the uploaded media code in `header_handle` from the above API's response
 ```
 curl --location 'http://localhost:2002/createTemplate' \
@@ -110,9 +110,9 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
 
 ---
 
-# 1. Self‑Host on Render
+# 📍1. Self‑Host on Render
 
-### 1.1. Create a New Web Service
+### 📍1.1. Create a New Web Service
 
 1. Log in to Render and click **New → Web Service**.
 2. Choose **Public Git repository**.
@@ -123,7 +123,7 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
    ```
 4. Click **Continue**.
 
-### 1.2. Configure Build & Start
+### 📍1.2. Configure Build & Start
 
 | Setting        | Value           |
 | -------------- | --------------- |
@@ -135,7 +135,7 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
 
 *Render automatically sets* `PORT` *to an ephemeral port (10000 in your logs).* ([Render][1])
 
-### 1.3. Add Environment Variables (Defaults)
+### 📍1.3. Add Environment Variables (Defaults)
 
 1. Go to the **Environment** tab.
 2. Click **Add Environment Variable** for each key from your README:
@@ -149,7 +149,7 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
    ```
 3. Click **Save, rebuild, and deploy**.
 
-### 1.4. Add API Key Auth
+### 📍1.4. Add API Key Auth
 
 1. In the same **Environment** tab, add:
 
@@ -160,7 +160,7 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
 
 *Your code checks* `Authorization: Bearer <API_KEY>`.
 
-### 1.5. Verify the Service
+### 📍1.5. Verify the Service
 
 * Wait for “Live” in the **Deploys** tab.
 * Confirm logs:
@@ -174,6 +174,10 @@ Here’s the **ultimate guide** (in English) to deploying your existing fork �
   https://meta-resumable-upload-api.onrender.com
   ```
 
+---
+---
+---
+---
 ---
 
 # 2. (Optional) Add Custom Subdomain
