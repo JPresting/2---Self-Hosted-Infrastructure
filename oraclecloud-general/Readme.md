@@ -254,6 +254,15 @@ This is very important (make sure you enter the link path exactly as I marked it
 
 ![image](https://github.com/user-attachments/assets/a19cfb48-4b30-48d9-9a61-c4c0ba720712)
 
+It shows you unattached and unused units. Click on the block volume recommended for deletion and follow the process.
+
+![image](https://github.com/user-attachments/assets/22872211-6839-40ee-9df1-29b9b2b961d7)
+
+Click on **Implement selected** and then on **Delete**:
+
+![image](https://github.com/user-attachments/assets/0ca0ca34-67b3-4816-80e8-3e298bacc492)/>
+
+
 ---
 
 ## 8. Optional: OCI Boot Volume Resize Guide
