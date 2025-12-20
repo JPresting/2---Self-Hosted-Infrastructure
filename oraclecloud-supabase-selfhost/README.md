@@ -1,4 +1,4 @@
-# Self-Hosting Supabase on Oracle Cloud with Docker
+# 💎Self-Hosting Supabase on Oracle Cloud with Docker💎
 
 A complete guide to set up your own Supabase instance on Oracle Cloud using Docker, Nginx, SSL certificates, and automatic updates.
 The focus here is on the IP Tables and how to set up Supabase with its env variables.
@@ -13,7 +13,7 @@ For a detailed instruction on how to set up the VM in Oracle Cloud in general ch
 
 ## 🚀 Step 1: Oracle Cloud VM Setup
 
-### 1.1 Create VM Instance
+### 📍1.1 Create VM Instance
 1. Login to Oracle Cloud Console
 2. Create a new VM instance:
    - **Shape**: VM.Standard.E2.1.Micro (Always Free)
@@ -21,12 +21,12 @@ For a detailed instruction on how to set up the VM in Oracle Cloud in general ch
    - **SSH Keys**: Generate and download your key pair
    - **Networking**: Allow HTTP (80) and HTTPS (443) traffic
 
-### 1.2 Reserve Static IP
+### 📍1.2 Reserve Static IP
 1. Go to **Networking → Virtual Cloud Networks → Public IPs**
 2. Click on your VM's external IP → **Reserve Static IP**
 3. Note down your static IP address (e.g., `123.456.78.90`)
 
-### 1.3 Configure Security Rules
+### 📍1.3 Configure Security Rules
 1. **Networking → Virtual Cloud Networks → Security Lists**
 2. Add ingress rules:
    - **Port 80** (HTTP): Source `0.0.0.0/0`
@@ -44,32 +44,32 @@ Set up your subdomain to point to your Oracle Cloud VM:
 
 ## 🖥️ Step 3: Server Setup
 
-### 3.1 Connect to Your VM
+### 📍3.1 Connect to Your VM
 ```bash
 ssh -i ~/path/to/your-ssh-key.key ubuntu@123.456.78.90
 ```
 
-### 3.2 Update System & Install Dependencies
+### 📍3.2 Update System & Install Dependencies
 ```bash
 sudo apt update
 sudo apt install nginx git -y
 ```
 
-### 3.3 Install Docker
+### 📍3.3 Install Docker
 ```bash
 sudo apt install docker.io -y
 sudo systemctl start docker
 sudo systemctl enable docker
 ```
 
-### 3.4 Install Docker Compose
+### 📍3.4 Install Docker Compose
 ```bash
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 ```
 
-### 3.5 Install Certbot
+### 📍3.5 Install Certbot
 ```bash
 sudo snap install core; sudo snap refresh core
 sudo snap install --classic certbot
@@ -77,14 +77,14 @@ sudo snap install --classic certbot
 
 ## 📦 Step 4: Supabase Installation
 
-### 4.1 Clone Supabase Repository
+### 📍4.1 Clone Supabase Repository
 ```bash
 git clone --depth 1 https://github.com/supabase/supabase.git
 cd supabase/docker
 cp .env.example .env
 ```
 
-### 4.2 Configure Environment Variables
+### 📍4.2 Configure Environment Variables
 
 Edit the `.env` file:
 ```bash
@@ -124,7 +124,7 @@ FILE_SIZE_LIMIT=0
 - **SECRET_KEY_BASE**: Minimum 64 characters, any characters allowed  
 - **VAULT_ENC_KEY**: Minimum 32 characters, letters and numbers only
 
-### 4.3 Fix Docker Compose Port Mapping
+### 📍4.3 Fix Docker Compose Port Mapping
 
 Edit `docker-compose.yml` to expose Studio port:
 ```bash
@@ -153,14 +153,14 @@ Find the `studio:` section (around line 12) and add ports:
 **⚠️ Important: Add the ports: section exactly between restart: unless-stopped and healthcheck:.**
 Why this port mapping is required: By default, Docker containers only expose ports internally within the Docker network. Supabase Studio runs on port 3000 inside the container, but without the "3000:3000" mapping, this port is only accessible to other containers. Nginx needs to access Studio on localhost:3000 to proxy web requests. Without this mapping, Nginx cannot reach the Studio interface, resulting in a non-functional web dashboard.
 
-### 4.4 Start Supabase
+### 📍4.4 Start Supabase
 ```bash
 sudo docker-compose up -d
 ```
 
 **This will take 10-15 minutes on the first run.**
 
-### 4.5 Verify Installation
+### 📍4.5 Verify Installation
 ```bash
 sudo docker ps
 ```
@@ -169,7 +169,7 @@ All containers should show "Up" status. Some may show "Restarting" or "Unhealthy
 
 ## 🔒 Step 5: SSL Certificate Setup
 
-### 5.1 Get SSL Certificate
+### 📍5.1 Get SSL Certificate
 ```bash
 sudo certbot certonly --nginx -d sb.example.com
 ```
@@ -185,7 +185,7 @@ Follow the prompts:
 
 ## 🌐 Step 6: Nginx Configuration
 
-### 6.1 Create Nginx Configuration
+### 📍6.1 Create Nginx Configuration
 ```bash
 sudo nano /etc/nginx/sites-available/supabase.conf
 ```
@@ -269,7 +269,7 @@ server {
 **Important Note about Vector Database Errors:**
 Without the `client_max_body_size 100M;` (100 MB) settings below, you'll get **413 Request Entity Too Large** errors when inserting vector embeddings. This is especially common with OpenAI embeddings (1536+ dimensions) which are much larger than Google embeddings (768 dimensions). The two lines prevent this error for vector database operations. The documents don't have to be too large and you will already run into that error if you don't adjust that value.
 
-### 6.2 Enable Configuration
+### 📍6.2 Enable Configuration
 ```bash
 sudo ln -s /etc/nginx/sites-available/supabase.conf /etc/nginx/sites-enabled/
 sudo nginx -t
@@ -288,7 +288,7 @@ You should see the Supabase Studio login page.
 
 ## 🔄 Step 8: Automatic Updates & Auto-Start
 
-### 8.1 Create Auto-Update Script
+### 📍8.1 Create Auto-Update Script
 
 Create an optimized update script that only backs up configurations:
 ```bash
@@ -351,14 +351,14 @@ echo "=== Supabase Update Completed: $(date) ===" >> $LOG_FILE
 echo "" >> $LOG_FILE
 ```
 
-### 8.2 Make Script Executable & Setup Log
+### 📍8.2 Make Script Executable & Setup Log
 ```bash
 chmod +x ~/update_supabase.sh
 sudo touch /var/log/supabase_update.log
 sudo chmod 666 /var/log/supabase_update.log
 ```
 
-### 8.3 Set Up Cronjobs
+### 📍8.3 Set Up Cronjobs
 
 Open crontab:
 ```bash
@@ -376,7 +376,7 @@ Add these lines:
 
 **Note**: `0 1 * * 0` = 1 AM UTC = 3 AM German time (CEST)
 
-### 8.4 Verify Cronjobs
+### 📍8.4 Verify Cronjobs
 ```bash
 sudo crontab -l
 ```
