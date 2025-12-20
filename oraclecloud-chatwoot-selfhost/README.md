@@ -1,4 +1,4 @@
-# 🚀 Oracle Cloud VM Setup Guide for Chatwoot
+# 💎Oracle Cloud VM Setup Guide for Chatwoot💎
 
 Quick guide for setting up a VM instance on Oracle Cloud for self-hosting Chatwoot customer support platform.
 
@@ -55,7 +55,7 @@ A static public IP is essential for hosting applications as it allows you to poi
 - Create reserved IP address
 - Manually assign to VM's private IP later
 
-## 🔒 Step 1: Oracle Cloud Security Rules (Cloud-Level Firewall)
+## 📍 Step 1: Oracle Cloud Security Rules (Cloud-Level Firewall)
 
 **Critical Step:** Configure cloud-level firewall rules to allow traffic to your applications.
 
@@ -87,7 +87,7 @@ Add these rules with **Source CIDR: `0.0.0.0/0`** and **IP Protocol: TCP**:
 - **Ingress:** Incoming traffic TO your VM (what you need to configure)
 - **Egress:** Outgoing traffic FROM your VM (usually allowed by default)
 
-## 🔥 Step 2: Server-Level Firewall (iptables Configuration)
+## 📍 Step 2: Server-Level Firewall (iptables Configuration)
 
 **⚠️ CRITICAL:** Oracle Cloud Ubuntu instances have restrictive iptables rules that block traffic despite correct Security Groups.
 
@@ -156,7 +156,7 @@ sudo python3 -m http.server 80
 # Press Ctrl+C to stop test server
 ```
 
-## 🌍 Step 3: DNS Configuration
+## 📍 Step 3: DNS Configuration
 
 Once you have your static public IP, point your domain to it:
 
