@@ -1,4 +1,4 @@
-# ♦️Self-Hosting N8N on the Google Cloud with Auto-Updates
+# 💎Self-Hosting N8N on the Google Cloud with Auto-Updates💎
 Guide on how to fully self-host n8n in a GCP project with up to no monthly costs (depending on the workflows you might pay networking costs, see: [GCP Network Pricing](https://cloud.google.com/vpc/network-pricing)) as well as auto-update the Docker image whenever the open-source GitHub repo of n8n has another release. The only two things you need to replicate this process 100% are a **credit/debit card** and a **domain**.
 
 # 📍Step 1: Setting up the GCP
