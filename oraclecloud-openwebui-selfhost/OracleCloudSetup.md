@@ -1,4 +1,4 @@
-# Self-Hosting Open WebUI on Oracle Cloud with Auto-Updates
+# 💎Self-Hosting Open WebUI on Oracle Cloud with Auto-Updates
 
 A complete guide to set up your own Open WebUI instance on Oracle Cloud using Docker, Nginx, SSL certificates, and automatic updates.
 
@@ -13,7 +13,7 @@ For a detailed instruction on how to set up the VM in Oracle Cloud in general ch
 
 ## 🚀 Step 1: Oracle Cloud VM Setup
 
-### 1.1 Create VM Instance
+### 📍1.1 Create VM Instance
 1. Login to Oracle Cloud Console
 2. Create a new VM instance (or install to existing one):
    - **Shape**: ARM1 4 cores 24GB RAM (Always Free)
@@ -21,12 +21,12 @@ For a detailed instruction on how to set up the VM in Oracle Cloud in general ch
    - **SSH Keys**: Generate and download your key pair
    - **Networking**: Allow HTTP (80) and HTTPS (443) traffic
 
-### 1.2 Reserve Static IP
+### 📍1.2 Reserve Static IP
 1. Go to **Networking → Virtual Cloud Networks → Public IPs**
 2. Click on your VM's external IP → **Reserve Static IP**
 3. Note down your static IP address (e.g., `123.456.78.90`)
 
-### 1.3 Configure Security Rules
+### 📍1.3 Configure Security Rules
 1. **Networking → Virtual Cloud Networks → Security Lists**
 2. Add ingress rules:
    - **Port 80** (HTTP): Source `0.0.0.0/0`
@@ -47,24 +47,24 @@ Set up your subdomain to point to your Oracle Cloud VM:
 
 ## 🖥️ Step 3: Server Setup
 
-### 3.1 Connect to Your VM
+### 📍3.1 Connect to Your VM
 ```bash
 ssh -i ~/Documents/your-ssh-key.key ubuntu@123.456.78.90
 ```
 
-### 3.2 Update System & Install Dependencies
+### 📍3.2 Update System & Install Dependencies
 ```bash
 sudo apt update
 sudo apt install nginx git docker.io curl -y
 ```
 
-### 3.3 Start Docker
+### 📍3.3 Start Docker
 ```bash
 sudo systemctl start docker
 sudo systemctl enable docker
 ```
 
-### 3.4 Install Certbot
+### 📍3.4 Install Certbot
 ```bash
 sudo snap install core; sudo snap refresh core
 sudo snap install --classic certbot
@@ -72,13 +72,13 @@ sudo snap install --classic certbot
 
 ## 📦 Step 4: Open WebUI Installation
 
-### 4.1 Create Data Directory
+### 📍4.1 Create Data Directory
 ```bash
 mkdir -p ~/data
 cd ~
 ```
 
-### 4.2 Start Open WebUI
+### 📍4.2 Start Open WebUI
 ```bash
 sudo docker run -d \
  --name openwebui \
@@ -93,7 +93,7 @@ sudo docker run -d \
 - **Standard ports** would be 3000 or 8080, but 3001 ensures no conflicts
 - **Oracle Cloud**: You MUST add port 3001 to your Security Rules in **Step 1.3** above
 
-### 4.3 Verify Installation
+### 📍4.3 Verify Installation
 ```bash
 # Check if container is running
 sudo docker ps | grep openwebui
@@ -104,7 +104,7 @@ curl -f http://localhost:3001
 
 ## 🔒 Step 5: SSL Certificate Setup
 
-### 5.1 Create Basic Nginx Configuration
+### 📍5.1 Create Basic Nginx Configuration
 ```bash
 sudo nano /etc/nginx/sites-available/openwebui.conf
 ```
@@ -134,14 +134,14 @@ server {
 }
 ```
 
-### 5.2 Enable Configuration
+### 📍5.2 Enable Configuration
 ```bash
 sudo ln -s /etc/nginx/sites-available/openwebui.conf /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### 5.3 Get SSL Certificate
+### 📍5.3 Get SSL Certificate
 ```bash
 sudo certbot --nginx -d chat.example.com
 ```
@@ -161,7 +161,7 @@ You should see the Open WebUI interface. Create your first admin account.
 
 ## 🔄 Step 7: Automatic Updates
 
-### 7.1 Create Auto-Update Script
+### 📍7.1 Create Auto-Update Script
 
 ```bash
 cd ~
@@ -217,14 +217,14 @@ echo "=== Open WebUI Update Completed: $(date) ===" >> $LOG_FILE
 echo "" >> $LOG_FILE
 ```
 
-### 7.2 Make Script Executable & Setup Log
+### 📍7.2 Make Script Executable & Setup Log
 ```bash
 chmod +x ~/update_openwebui.sh
 sudo touch /var/log/openwebui_update.log
 sudo chmod 666 /var/log/openwebui_update.log
 ```
 
-### 7.3 Set Up Cronjobs
+### 📍7.3 Set Up Cronjobs
 
 ```bash
 sudo crontab -e
@@ -239,7 +239,7 @@ Add these lines:
 @reboot sleep 60 && sudo docker run -d --name openwebui -p 3001:8080 -v /home/ubuntu/data:/app/backend/data --restart unless-stopped ghcr.io/open-webui/open-webui:main
 ```
 
-### 7.4 Test Auto-Update
+### 📍7.4 Test Auto-Update
 ```bash
 # Test the update script manually
 sudo bash ~/update_openwebui.sh
@@ -251,19 +251,19 @@ tail -f /var/log/openwebui_update.log
 sudo crontab -l
 ```
 
-## 🤖 Step 8: Connect Local Ollama Models (RTX 3080 Setup in my case)
+## 🤖 Step 8: Connect Local Ollama Models 
 
 Transform your Open WebUI into a powerhouse by connecting your local RTX 3080 GPU for AI model processing while keeping the convenient cloud-based interface.
 
-### 8.1 Install Ollama Locally
+### 📍8.1 Install Ollama Locally
 
 **Windows:**
 1. Download from https://ollama.com
 2. Install `OllamaSetup.exe`
 3. Verify installation: `ollama --version`
 
-### 8.2 Install Models for RTX 3080 (10GB VRAM)
-
+### 📍8.2 Install Models for RTX 3080 (10GB VRAM)
+All relative to self-hostable models of course - not comparable to the top models out there...
 ```bash
 # Light models (1-3GB VRAM) - Very fast
 ollama pull llama3.2:1b        # ~1GB - Extremely fast
@@ -287,7 +287,7 @@ ollama pull llama3.1:70b-q4    # ~9GB - Huge model, quantized
 ollama list
 ```
 
-### 8.3 Setup ngrok Account & Static Domain
+### 📍8.3 Setup ngrok Account & Static Domain
 
 1. **Create Account**: https://ngrok.com (free)
 2. **Install ngrok**: 
@@ -302,7 +302,7 @@ ngrok config add-authtoken YOUR_TOKEN_FROM_DASHBOARD
 5. **Reserve Static Domain**: Dashboard → "Cloud Edge" → "Domains"
    - Choose subdomain: e.g., `your-subdomain.ngrok-free.app`
 
-### 8.4 Create Autostart Script
+### 📍8.4 Create Autostart Script
 
 **Create file:** `C:\ollama-autostart.bat`
 
@@ -343,7 +343,7 @@ REM Keep window open for monitoring
 pause
 ```
 
-### 8.5 Enable Autostart
+### 📍8.5 Enable Autostart
 
 **Copy script to:**
 ```
@@ -352,7 +352,7 @@ pause
 
 **Remove any existing "Ollama" shortcuts from startup to avoid conflicts.**
 
-### 8.6 Connect Open WebUI to Local Ollama
+### 📍8.6 Connect Open WebUI to Local Ollama
 
 **Update Oracle Cloud container:**
 
@@ -392,7 +392,7 @@ sudo docker run -d \
  ghcr.io/open-webui/open-webui:main >> $LOG_FILE 2>&1
 ```
 
-### 8.7 Test Setup
+### 📍8.7 Test Setup
 
 1. **Restart your PC** (test autostart)
 2. **Wait 2-3 minutes** for services to start
@@ -400,7 +400,7 @@ sudo docker run -d \
 4. **Test Open WebUI**: `https://chat.example.com`
 5. **Should show your local models** in model selector
 
-### 8.8 Model Management
+### 📍8.8 Model Management
 
 **Automatic behavior:**
 - **New models**: Appear automatically in Open WebUI after `ollama pull`
@@ -447,7 +447,7 @@ Your Open WebUI instance uses these ports:
 - **Port 3001**: Open WebUI Web Interface (proxied through Nginx)
 - **Port 80**: HTTP (redirects to HTTPS)
 - **Port 443**: HTTPS (SSL-secured access)
-- **Port 11434**: Ollama API (local only, tunneled via ngrok)
+- **Port 11434**: Ollama API (local only, tunneled via Ngrok or Cloudflare)
 
 ## 🛠️ Managing Your Instance
 
