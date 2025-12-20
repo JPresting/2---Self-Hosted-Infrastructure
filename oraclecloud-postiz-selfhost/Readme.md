@@ -1,4 +1,4 @@
-# Self-Hosting Postiz on Oracle Cloud with Auto-Updates
+# 💎Self-Hosting Postiz on Oracle Cloud with Auto-Updates💎
 
 A complete guide to set up your own Postiz social media management platform on Oracle Cloud using Docker, Nginx, SSL certificates, and automatic updates.
 
@@ -13,14 +13,14 @@ For a detailed instruction on how to set up the VM in Oracle Cloud in general ch
 
 ## 🚀 Quick Setup
 
-### Step 1: Connect to Your VM
+### 📍Step 1: Connect to Your VM
 
 ```bash
 ssh -i ~/path/to/your-ssh-key.key ubuntu@YOUR_PUBLIC_IP
 # REPLACE: YOUR_PUBLIC_IP with your actual Oracle Cloud VM IP
 ```
 
-### Step 2: Configure Firewall Rules
+### 📍Step 2: Configure Firewall Rules
 
 **⚠️ CRITICAL:** Oracle Cloud has two firewall layers that both need configuration.
 
@@ -37,7 +37,7 @@ sudo iptables -I INPUT 6 -p tcp --dport 5000 -j ACCEPT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ```
 
-### Step 3: DNS Configuration
+### 📍Step 3: DNS Configuration
 
 Set up your subdomain to point to your Oracle Cloud VM:
 
@@ -57,14 +57,14 @@ Set up your subdomain to point to your Oracle Cloud VM:
 
 ## 📦 Postiz Installation
 
-### Step 1: Create Project Directory
+### 📍Step 1: Create Project Directory
 
 ```bash
 mkdir ~/postiz
 cd ~/postiz
 ```
 
-### Step 2: Generate Security Keys
+### 📍Step 2: Generate Security Keys
 
 **IMPORTANT**: Save these values - you'll need them in the next step!
 
@@ -80,7 +80,7 @@ openssl rand -base64 32
 
 **Copy and save both generated values somewhere safe!**
 
-### Step 3: Create Docker Compose Configuration
+### 📍Step 3: Create Docker Compose Configuration
 
 ```bash
 nano docker-compose.yml
@@ -189,7 +189,7 @@ volumes:
 3. **Replace `your-generated-jwt-secret-here`** with the JWT secret you generated in Step 2
 4. **Optionally replace `sk-your-openai-api-key-here`** with your OpenAI API key (remove # to enable)
 
-### Step 4: Start Postiz
+### 📍Step 4: Start Postiz
 
 **Install docker-compose if not available:**
 ```bash
@@ -210,7 +210,7 @@ sudo docker-compose logs -f postiz
 
 ## 🌐 SSL Setup with Nginx
 
-### Step 1: Create Nginx Configuration
+### 📍Step 1: Create Nginx Configuration
 
 ```bash
 sudo nano /etc/nginx/sites-available/postiz.conf
@@ -240,7 +240,7 @@ server {
 }
 ```
 
-### Step 2: Enable Configuration and SSL
+### 📍Step 2: Enable Configuration and SSL
 
 ```bash
 # Enable site
@@ -473,6 +473,8 @@ sudo docker-compose up -d
 - **Health checks** after updates
 - **Keeps only 2 latest backups** (prevents disk filling)
 - **Database data preserved** during updates
+  
+Choose the frequency however you like...
 
 ## 🎉 Success!
 
