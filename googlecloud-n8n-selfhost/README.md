@@ -650,6 +650,32 @@ sudo docker pull n8nio/n8n:latest
 - Google Console → VM instances → Your VM → Stop → Start
 
 
+## 📍 Appendix #4
+
+If 1 GB of RAM with the Free Tier proves to be insufficient and the instance continuously crashes, try adding virtual RAM (Swap) via a startup script.
+
+1. Click on **Edit** for your VM Instance.
+2. Scroll down to the **Automation** section.
+<img width="618" height="268" alt="image" src="https://github.com/user-attachments/assets/7f4bea8c-e320-4d94-92df-65e26ab10f6c" />
+3. Add the following script to the **Startup script** field:
+
+```bash
+#!/bin/bash
+# Check if swap exists, if not create 2GB swap file to prevent OOM kills
+if [ ! -f /swapfile ]; then
+    fallocate -l 2G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    # Make permanent
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    # Tune swappiness for low memory
+    sysctl vm.swappiness=10
+fi
+
+```
+
+4. Click on **Save** and **Reset/Restart** your instance.
 
 
 **Need a more advanced deployment, integration, or enterprise automation?** Visit [Stardawnai.com](https://stardawnai.com) for professional consulting and development on AI-driven process automation, SAP integration, self-hosted enterprise N8N workflows, and custom hybrid infrastructure solutions tailored to your business needs.
