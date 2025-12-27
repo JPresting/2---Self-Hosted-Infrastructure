@@ -26,6 +26,8 @@ This guide explains how to set up an automated backup from GitHub to a **Google 
 
 *REQUIRED: You must use a "Shared Drive" (Workspace), not "My Drive", to avoid quota errors.*
 
+<img width="586" height="345" alt="23" src="https://github.com/user-attachments/assets/85dc68b2-5053-429c-b115-e846a728154a" />
+
 1. Go to Google Drive -> **Shared Drives**.
 2. Create a new Shared Drive (or open an existing one).
 3. **Manage Members** -> Add the **Service Account Email**.
