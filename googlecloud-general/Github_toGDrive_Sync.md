@@ -28,7 +28,7 @@ Choose the method that fits your needs:
 
 ## ✅ Phase 2: Google Drive (Shared Drive)
 
-<img width="586" height="345" alt="23" src="[https://github.com/user-attachments/assets/85dc68b2-5053-429c-b115-e846a728154a](https://github.com/user-attachments/assets/85dc68b2-5053-429c-b115-e846a728154a)" />
+<img width="586" height="345" alt="23" src="https://github.com/user-attachments/assets/85dc68b2-5053-429c-b115-e846a728154a" />
 
 1. Go to Google Drive -> **Shared Drives**.
 2. Create a new Shared Drive (or open an existing one).
