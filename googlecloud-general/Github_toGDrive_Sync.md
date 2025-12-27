@@ -1,7 +1,7 @@
 # 📂 GitHub to Google Drive Sync – Complete Guide
 
 This guide explains how to set up an automated backup from GitHub to Google Drive.
-Choose the method that fits your needs:
+You can use **both** methods in the same repository if needed.
 
 * **Option A: Google Workspace (Best for Teams)** – Uses a Service Account "Robot". Works best with Shared Drives.
 * **Option B: Private Google Account (Best for Personal Use)** – Uses OAuth (your personal login). Works with standard Google Drive folders.
@@ -44,7 +44,7 @@ Go to your Repository -> **Settings** -> **Secrets and variables** -> **Actions*
 | Secret Name | Value |
 | --- | --- |
 | `GCP_SA_KEY` | Paste the **entire content** of the JSON Key file here. |
-| `DRIVE_FOLDER_ID` | Paste the **Folder ID** from Phase 2. |
+| `WORKSPACE_FOLDER_ID` | Paste the **Folder ID** from Phase 2. |
 
 ## ✅ Phase 4: The Workflow Script (Workspace)
 
@@ -74,7 +74,8 @@ jobs:
       - name: Sync to Google Drive
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          # Connects to the Workspace Secret
+          DRIVE_FOLDER_ID: ${{ secrets.WORKSPACE_FOLDER_ID }}
         run: |
           # 1. Create service account key file from secret
           echo "$GCP_SA_KEY" > sa_key.json
@@ -117,7 +118,7 @@ jobs:
 3. **Configure Consent Screen:**
 * Select **External** User Type.
 * Fill in App Name (e.g., "Rclone") and Support Email.
-* **IMPORTANT:** Go to the **Audience** tab. Under **"Test users"**, click **Add Users** and enter your own Google Email address. **If you skip this, the login will fail!**
+* **CRITICAL STEP:** Go to the **Audience** tab. Under **"Test users"**, click **Add Users** and enter your own Google Email address. **If you skip this, the login will fail!**
 
 
 4. **Create Credentials:**
@@ -159,7 +160,7 @@ Go to your Repository -> **Settings** -> **Secrets and variables** -> **Actions*
 | Secret Name | Value |
 | --- | --- |
 | `RCLONE_CONF` | Paste the **entire config block** you copied from the terminal. |
-| `DRIVE_FOLDER_ID` | Paste the **Folder ID** of your private Google Drive folder. |
+| `PRIVATE_FOLDER_ID` | Paste the **Folder ID** of your private Google Drive folder. |
 
 ## ✅ Phase 4: The Workflow Script (Private)
 
@@ -190,7 +191,8 @@ jobs:
         env:
           # Load the config block directly from the secret
           RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
-          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          # Connects to the Private Secret
+          DRIVE_FOLDER_ID: ${{ secrets.PRIVATE_FOLDER_ID }}
         run: |
           # 1. Restore Rclone Config file
           mkdir -p ~/.config/rclone
