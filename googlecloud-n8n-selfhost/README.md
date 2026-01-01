@@ -1,6 +1,9 @@
 # 💎Self-Hosting N8N on the Google Cloud with Auto-Updates💎
 Guide on how to fully self-host n8n in a GCP project with up to no monthly costs (depending on the workflows you might pay networking costs, see: [GCP Network Pricing](https://cloud.google.com/vpc/network-pricing)) as well as auto-update the Docker image whenever the open-source GitHub repo of n8n has another release. The only two things you need to replicate this process 100% are a **credit/debit card** and a **domain**.
 
+**⚠️ CRITICAL ALERT (Version 2.x+):**
+Starting with n8n version 2.0, **Free Tier resources (e2-micro) are NO LONGER SUFFICIENT** in most cases. This is due to the new default "Task Runner" sub-processes, which significantly increase RAM usage, leading to timeouts and crashes on 1GB instances. To use the Free Tier with v2.x+, you **must** likely disable these sub-processes by setting the environment variable `N8N_RUNNERS_ENABLED=false`.
+
 # 📍Step 1: Setting up the GCP
 
 1. Go to cloud.google.com and click on Console
