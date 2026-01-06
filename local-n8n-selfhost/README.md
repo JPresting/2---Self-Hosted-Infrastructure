@@ -55,7 +55,7 @@ docker run -d `
   -e WEBHOOK_TUNNEL_URL="http://localhost:5678" `
   -e N8N_ENABLE_RAW_EXECUTION="true" `
   -e NODE_FUNCTION_ALLOW_BUILTIN="crypto,fs,path" `
-  -e NODE_FUNCTION_ALLOW_EXTERNAL="" `
+  -e NODE_FUNCTION_ALLOW_EXTERNAL="pdf-lib"
   -e N8N_PUSH_BACKEND="websocket" `
   -e N8N_DEFAULT_BINARY_DATA_MODE="filesystem" `
   -e GENERIC_TIMEZONE="Europe/Berlin" `
@@ -79,7 +79,7 @@ The environment variables included in this setup serve specific purposes that en
 - `N8N_ENABLE_RAW_EXECUTION="true"` enables advanced code execution capabilities
 - `NODE_FUNCTION_ALLOW_BUILTIN="crypto,fs,path"` permits access to essential Node.js modules
 - `N8N_PUSH_BACKEND="websocket"` improves real-time updates in the interface
-
+- `NODE_FUNCTION_ALLOW_EXTERNAL="pdf-lib"` # External JavaScript Libraries
 **Data Management:**
 - `N8N_DEFAULT_BINARY_DATA_MODE="filesystem"` stores large files locally rather than in memory
 - `GENERIC_TIMEZONE` and `TZ` set the timezone for all time-based operations
