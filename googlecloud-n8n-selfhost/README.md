@@ -167,18 +167,18 @@ n8nio/n8n
       --name n8n \
       -p 5678:5678 \
       -e N8N_HOST="your-subdomain.your-domain.com" \
-      -e WEBHOOK_TUNNEL_URL="https://your-subdomain.your-domain.com/" \
       -e WEBHOOK_URL="https://your-subdomain.your-domain.com/" \
-      -e N8N_BINARY_DATA_MODE="memory" \
-      -e NODE_FUNCTION_ALLOW_BUILTIN="crypto" \
-      -e NODE_FUNCTION_ALLOW_EXTERNAL="" \
+      -e GENERIC_TIMEZONE=Europe/Berlin
+      -e N8N_DEFAULT_BINARY_DATA_MODE="default" \
+      -e NODE_FUNCTION_ALLOW_BUILTIN="*" \
+      -e NODE_FUNCTION_ALLOW_EXTERNAL= "*"\
       -e N8N_PUSH_BACKEND=websocket \
-      #-e N8N_DEFAULT_BINARY_DATA_MODE="filesystem" \   # Needed when e.g. trying to upload Youtube Videos or less problems with Community Nodes
       -v /home/your-google-account/.n8n:/home/node/.n8n \
       n8nio/n8n
     ```
 
 
+-e N8N_DEFAULT_BINARY_DATA_MODE="default" Choosing memory (default) or filesystem depends on your instance. 
 
 
 It now downloads the latest **n8n** image. Since this is the first installation, it obviously can't find **n8n:latest** in your directory, so that's not a problem.
