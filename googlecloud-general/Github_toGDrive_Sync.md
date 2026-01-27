@@ -121,7 +121,21 @@ jobs:
 * **CRITICAL STEP:** Go to the **Audience** tab. Under **"Test users"**, click **Add Users** and enter your own Google Email address. **If you skip this, the login will fail!**
 
 
-4. **Create Credentials:**
+4 Configure OAuth Consent (CRUCIAL STEP)
+
+a. Go to **APIs & Services** > **OAuth consent screen**.
+b. Select **External** and fill in the required names (email etc.).
+c. **IMPORTANT:** Once created, go to the **Audience** tab (or check the Dashboard).
+d. Click the button **PUBLISH APP** (or "In production").
+   * *Ignore the verification warning (Click "Confirm").*
+   * **Why?** If the status stays on "Testing", your connection will break every 7 days!
+
+     
+<img width="570" height="295" alt="image" src="https://github.com/user-attachments/assets/abe69ace-b832-494c-bcf0-31e891fc14ae" />
+
+
+
+5. **Create Credentials:**
 * Go to **Credentials** -> **Create Credentials** -> **OAuth client ID**.
 * Application type: **Desktop app**.
 * Copy the **Client ID** and **Client Secret**.
