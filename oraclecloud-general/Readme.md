@@ -70,11 +70,11 @@ You can leave it as is
 
 ### Networking
 
-Here we want to create a new virtual cloud network (for multiple instances you can then later use existing ones so you don't have to redo all the Ingress Rules). What's important is that we want to make sure of 2 things here. We want to create a static public IP address (e.g. once we restart the instance or Oracle Cloud has issues that the IP stays the same (important for 24/7 hosting of various platforms) as well as downloading the private and public ssh keys)
+Here we want to create a new virtual cloud network (for multiple instances you can then later use existing ones so you don't have to redo all the Ingress Rules). What's important is that we want to make sure of 2 things here. We want to create a static public IP address (e.g. once we restart the instance or Oracle Cloud has issues that the IP stays the same (important for 24/7 hosting of various platforms) as well as downloading the private and public ssh keys). Create a new VNIC a new VCN and a new Subnet, if this is your first instance. Ignore the warnings. 
 
 <img width="877" height="800" alt="Screenshot 2025-08-03 154342" src="https://github.com/user-attachments/assets/0d1524ec-e64f-43ce-affa-e74adc390ebc" />
 
-Click on **Download Private and Public Key**
+Click on **Download Private and Public Key** and then click on next.
 
 <img width="903" height="316" alt="image" src="https://github.com/user-attachments/assets/b367a953-040c-4241-9cb7-193d7a47272b" />
 
@@ -91,6 +91,9 @@ in a txt file so I can quickly connect to the server when opening the terminal.
 Here you can click on **"Specify a custom boot volume size and performance setting"** and enter **200GB Boot Volume size** which is still included in the Always Free Tier. Or you can leave it as default (50) and change it later.
 
 ### That's it!
+
+<img width="310" height="48" alt="image" src="https://github.com/user-attachments/assets/7ab4d114-e234-468f-8c76-d8013060de87" />
+You can also later save the config as a stack, so you don't have to redo all the steps but then under **Networking** select the THEN existing vnic, vcn and subnet!
 
 Click on **Create Instance** (you can check the estimated costs - I don't think they include the calculation of the Always Free tier Compute as the system doesn't check if you already have instances running just based on the selection)
 
