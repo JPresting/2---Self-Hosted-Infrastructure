@@ -2,7 +2,29 @@
 
 Generally important for Oracle cloud setup and interactions...
 
-## 📍1. Get an Instance in the First Place
+---
+
+## 📍1 Setup Security and Two-Factor Authentication
+
+After creating an account on https://signup.oraclecloud.com/ and following the instructions, it's important to first set up security measures. You probably set up authentication using the Oracle Cloud Authenticator app as instructed. However, it's important to better secure your account.
+
+After being in your account dashboard for the first time, go to the top right, click on your profile icon, and navigate to **User Settings** → **My Profile** → **Security**.
+
+Here you want to set up a bunch of bypass codes. These can only be used once and serve as an alternative if you don't have access to the device where your authenticator apps are running.
+
+They can then be used during login. By default, it will wait for you to authenticate with an authenticator app, but here you can select **"Alternative login methods"** and select one of your bypass codes. Delete the code from your internal database afterwards (wherever you stored it).
+
+<img width="651" height="654" alt="image" src="https://github.com/user-attachments/assets/b53eae84-09da-445c-8751-3afc6b1e544d" />
+
+Then I would recommend you add at least one more authenticator app next to the Oracle Authenticator. It really doesn't matter what you are adding here, but the Oracle Authenticator app often has bugs, so I would recommend Microsoft or Google Authenticator.
+
+Go to **Actions** → **Add mobile app** → **Scan the QR-Code** → **select the toggle 'Offline mode or use another authenticator'**
+
+<img width="1728" height="806" alt="image" src="https://github.com/user-attachments/assets/455cd638-6ed5-4c9f-a904-306ccf451b75" />
+
+
+
+## 📍1.1 Get an Instance in the First Place
 
 > "To guarantee instance availability, I recommend upgrading to **Pay-As-You-Go**.
 > 1. Go to **Billing & Cost Management**  **Upgrade and Manage Payment**.
@@ -13,6 +35,10 @@ Generally important for Oracle cloud setup and interactions...
 > *Note: Oracle's fraud detection is strict regarding the limit of one account per person/credit card.*"
 
 <img width="1840" height="586" alt="image" src="https://github.com/user-attachments/assets/2cf635ca-5347-47ab-80e7-e83dc38ebd20" />
+
+
+
+
 
 ## 📍2. Create an Instance
 
