@@ -1,209 +1,300 @@
-# Coolify + Dokploy Dual Setup on one Server (one Domain)
+# Running Multiple PaaS Platforms on One Server
 
-**Why both?** Multiple deployment platforms on one server - one for tests one for production (could be the same PaaS multiple times but it's important how to deploy it for one domain with multiple tunnels - not via the same Traefik Proxy).
+> **Use Case:** Coolify + Dokploy (or any combination of deployment platforms) on a single server with one domain.
 
-**The conflict:** Both need ports 80/443 for Traefik.
+## The Problem
 
-**The solution:** Coolify on host, Dokploy in VM. VM gives complete network isolation - simpler and more reliable than Docker-in-Docker or custom network bridges which often cause routing issues.
+Both Coolify and Dokploy require ports 80/443 for their Traefik reverse proxies. Running them side-by-side on the same host causes port conflicts.
 
+## The Solution
 
+Run one platform on the host, additional platforms in VMs. Each gets its own Cloudflare Tunnel for complete network isolation.
 
-## Important: Multiple (PaaS) Platforms on One Domain
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Physical Server                        │
+│                                                             │
+│  ┌─────────────────┐          ┌─────────────────────────┐  │
+│  │   Host (Coolify) │          │   VM (Dokploy)          │  │
+│  │   :80/:443       │          │   :80/:443 (isolated)   │  │
+│  │   ↑              │          │   ↑                     │  │
+│  │   host-tunnel    │          │   vm-tunnel             │  │
+│  └─────────────────┘          └─────────────────────────┘  │
+│           ↑                              ↑                  │
+└───────────┼──────────────────────────────┼──────────────────┘
+            │                              │
+     *.example.com                  app.example.com
+      (wildcard)                   (specific CNAME)
+```
 
-Running multiple deployment platforms (e.g., 1x Coolify, 1x Dokploy, 1x other) on one physical server and one domain is complex.
+---
 
-**Two approaches:**
+## Why This Approach?
 
-1. **Single shared Traefik (risky):** All platforms use the same reverse proxy. This is complicated and often causes routing conflicts and failures.
+| Approach | Complexity | Reliability |
+|----------|------------|-------------|
+| Shared Traefik | High | ❌ Routing conflicts |
+| Docker-in-Docker | Medium | ❌ Networking issues |
+| **Separate VMs + Tunnels** | Low | ✅ Complete isolation |
 
-2. **Multiple tunnels + VMs (this guide):** Each platform gets its own tunnel and isolated environment. This requires:
-   - Separate VM for each additional platform (network isolation)
-   - Separate Cloudflare Tunnel per platform
-   - Manual DNS CNAME records that override the host wildcard
+---
 
-**The challenge:** DNS wildcard `*.example.com` points to ONE tunnel. To route specific subdomains to different PaaS providers (e.g. one to Coolify one to Dokploy), you must create individual CNAME records for each app that override the wildcard. This is why deploying multiple platforms on one domain is difficult - it requires manual DNS management per app for non-host platforms (see further below).
+## Quick Start
 
-**Recommendation:** If possible, use separate domains per platform to avoid this complexity.
+### Prerequisites
 
+- Ubuntu 22.04/24.04 LTS server
+- Domain with DNS managed by Cloudflare
+- Cloudflare account with Zero Trust access
 
+---
 
+## Part 1: Install Coolify (Host)
 
-
-## Setup
-
-### Install Coolify (Host)
 ```bash
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 ```
 
-**Fix SSH limits:**
+### Fix SSH Connection Limits
 
-Coolify's internal container makes persistent SSH connections to Docker daemon. Default limit causes connection failures.
+Coolify's internal container maintains persistent SSH connections. The default limit causes failures.
+
 ```bash
 sudo nano /etc/ssh/sshd_config
-# Set: MaxStartups 50:30:100
+```
+
+Add or modify:
+```
+MaxStartups 50:30:100
+```
+
+```bash
 sudo systemctl reload ssh
 ```
 
-### Install Dokploy (VM)
+---
 
-**Check your system resources first:**
+## Part 2: Install Dokploy (VM)
+
+### Check Available Resources
+
 ```bash
 nproc    # CPU cores
-free -h  # RAM
-df -h /  # Disk
+free -h  # Available RAM
+df -h /  # Disk space
 ```
 
-**Create VM with appropriate resources:**
+### Create the VM
+
 ```bash
 multipass launch 24.04 --name dokploy-box --cpus 10 --memory 12G --disk 200G
 ```
 
-**Resource notes:**
-- **CPUs:** Time-shared, not physically reserved. Can allocate more than you have.
-- **RAM:** Physically reserved by VM. Choose based on available RAM.
-- **Disk:** Thin-provisioned, grows as needed.
+> **Resource Notes:**
+> - **CPUs:** Time-shared, can over-allocate
+> - **RAM:** Physically reserved by VM
+> - **Disk:** Thin-provisioned, grows on demand
 
-Adjust numbers based on your hardware.
+### Install Docker & Dokploy
+
 ```bash
+# Enter VM
 multipass shell dokploy-box
+
+# Install Docker
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker ubuntu
 exit
+
+# Restart VM to apply group changes
 multipass restart dokploy-box
 
+# Install Dokploy
 multipass shell dokploy-box
 curl -sSL https://dokploy.com/install.sh | sh
+exit
 ```
 
-## Cloudflare Tunnel
+---
 
-**Why two tunnels?** Host and VM have separate network namespaces. One tunnel cannot access both.
+## Part 3: Cloudflare Tunnels
 
-### Host Tunnel (e.g. Coolify)
+> **Why two tunnels?** Host and VM have separate network namespaces. A single tunnel cannot route to both.
 
-**Install:**
+### Host Tunnel (for Coolify)
+
+#### Install cloudflared
+
 ```bash
 sudo mkdir -p --mode=0755 /usr/share/keyrings
-curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
 
-echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflared.list
+curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | \
+  sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
 
-sudo apt update && sudo apt install cloudflared
+echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/cloudflared.list
+
+sudo apt update && sudo apt install cloudflared -y
 ```
 
-**Create tunnel:**
-1. [Zero Trust Dashboard](https://one.dash.cloudflare.com/) → Networks → Tunnels → Create
-2. Name: `host-tunnel`
-3. Run install command
+#### Create Tunnel
 
-**Add DNS:**
-```
-Type: CNAME
-Name: *
-Target: <HOST-TUNNEL-ID>.cfargotunnel.com
-Proxy: Enabled
-```
+1. Go to [Zero Trust Dashboard](https://one.dash.cloudflare.com/) → Networks → Tunnels
+2. Click **Create a tunnel**
+3. Name: `host-tunnel`
+4. Copy and run the install command on your server
 
-Routes all subdomains to tunnel.
+#### Configure DNS (Wildcard)
 
-**Tunnel Routes:**
+| Type | Name | Target | Proxy |
+|------|------|--------|-------|
+| CNAME | `*` | `<HOST-TUNNEL-ID>.cfargotunnel.com` | ✅ |
 
-Routes tell tunnel which local port for each subdomain.
+#### Configure Tunnel Routes
 
-**Order matters** - Cloudflare checks top to bottom.
+> ⚠️ **Order matters!** Cloudflare evaluates routes top-to-bottom.
 
-Route 1:
-```
-Subdomain: coolify
-Domain: example.com
-Service: http://localhost:8000
-```
+| Priority | Subdomain | Domain | Service |
+|----------|-----------|--------|---------|
+| 1 | `coolify` | `example.com` | `http://localhost:8000` |
+| 2 | `*` | `example.com` | `http://localhost:80` |
+| 3 | — | — | `http_status:404` |
 
-Route 2:
-```
-Subdomain: *
-Domain: example.com
-Service: http://localhost:80
-```
-
-Route 3: `http_status:404`
 ```bash
 sudo systemctl restart cloudflared
 ```
 
-### VM Tunnel (Dokploy)
+---
 
-**Install in VM:**
+### VM Tunnel (for Dokploy)
+
+#### Install cloudflared in VM
+
 ```bash
 multipass shell dokploy-box
 
 sudo mkdir -p --mode=0755 /usr/share/keyrings
-curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
 
-echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflared.list
+curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | \
+  sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
 
-sudo apt update && sudo apt install cloudflared
+echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/cloudflared.list
+
+sudo apt update && sudo apt install cloudflared -y
 ```
 
-**Create tunnel:**
-1. Dashboard → Create second tunnel
+#### Create Tunnel
+
+1. Dashboard → Create another tunnel
 2. Name: `vm-tunnel`
-3. Run install command in VM
+3. Copy and run the install command **inside the VM**
 
-**DNS for Dokploy UI:**
-```
-Type: CNAME
-Name: dokploy
-Target: <VM-TUNNEL-ID>.cfargotunnel.com
-Proxy: Enabled
-```
+#### Configure DNS (Dokploy UI)
 
-**VM Tunnel Routes:**
+| Type | Name | Target | Proxy |
+|------|------|--------|-------|
+| CNAME | `dokploy` | `<VM-TUNNEL-ID>.cfargotunnel.com` | ✅ |
 
-Route 1:
-```
-Subdomain: dokploy
-Domain: example.com
-Service: http://localhost:3000
-```
+#### Configure Tunnel Routes
 
-Route 2:
-```
-Subdomain: *
-Domain: example.com
-Service: http://localhost:80
-```
+| Priority | Subdomain | Domain | Service |
+|----------|-----------|--------|---------|
+| 1 | `dokploy` | `example.com` | `http://localhost:3000` |
+| 2 | `*` | `example.com` | `http://localhost:80` |
+| 3 | — | — | `http_status:404` |
 
-Route 3: `http_status:404`
 ```bash
 sudo systemctl restart cloudflared
 exit
 ```
 
-## Deploying Apps
+---
 
-### Coolify Apps
+## Part 4: Deploying Applications
 
-Deploy with domain `myapp.example.com` - automatic routing via wildcard DNS.
+### Coolify Apps (Automatic)
 
-### Dokploy Apps
+1. Deploy with domain: `myapp.example.com`
+2. Wildcard DNS handles routing automatically ✅
 
-Deploy with domain `myapp.example.com`, then manually add DNS:
-```
-Type: CNAME
-Name: myapp
-Target: <VM-TUNNEL-ID>.cfargotunnel.com
-Proxy: Enabled
-```
+### Dokploy Apps (Manual DNS Required)
 
-**Why manual?** Specific DNS entry overrides * wildcard, routing to VM tunnel instead of host, otherwise everything would be routed to the Traefik proxy listening on port 80.
+1. Deploy with domain: `myapp.example.com`
+2. **Manually add DNS record:**
+
+| Type | Name | Target | Proxy |
+|------|------|--------|-------|
+| CNAME | `myapp` | `<VM-TUNNEL-ID>.cfargotunnel.com` | ✅ |
+
+> **Why manual?** The specific CNAME record overrides the `*` wildcard, routing traffic to the VM tunnel instead of the host.
+
+---
 
 ## Result
 
-- `coolify.example.com` → Coolify UI
-- `dokploy.example.com` → Dokploy UI  
-- `app1.example.com` → Coolify app (wildcard)
-- `app2.example.com` → Dokploy app (manual CNAME)
+| URL | Destination |
+|-----|-------------|
+| `coolify.example.com` | Coolify UI (host) |
+| `dokploy.example.com` | Dokploy UI (VM) |
+| `app1.example.com` | Coolify app (via wildcard) |
+| `app2.example.com` | Dokploy app (via manual CNAME) |
 
-**Note:** You can extend this setup to multiple subdomain levels (e.g., `*.dev.example.com`, `*.test.dev.example.com`) by creating additional wildcard DNS entries and tunnel routes. Cloudflare will always match the most specific wildcard first, allowing clean separation between different environments or platforms on the same domain.
+---
+
+## Advanced: Multi-Level Subdomains
+
+You can extend this setup for environment separation:
+
+```
+*.example.com           → Production (Coolify)
+*.dev.example.com       → Development (Dokploy)
+*.staging.example.com   → Staging (Third platform)
+```
+
+Create additional wildcard DNS entries and tunnel routes as needed. Cloudflare matches the most specific wildcard first.
+
+---
+
+## Troubleshooting
+
+### DNS Not Resolving
+
+```bash
+# Check tunnel status
+sudo systemctl status cloudflared
+
+# View tunnel logs
+sudo journalctl -u cloudflared -f
+```
+
+### Port Conflicts
+
+```bash
+# Check what's using port 80
+sudo lsof -i :80
+```
+
+### VM Network Issues
+
+```bash
+# Check VM status
+multipass list
+
+# Restart VM
+multipass restart dokploy-box
+
+# Get VM IP
+multipass info dokploy-box | grep IPv4
+```
+
+---
+
+## Recommendations
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Simple setup | Use one platform only |
+| Test + Production | This dual setup |
+| Multiple teams | Separate domains per platform |
+
