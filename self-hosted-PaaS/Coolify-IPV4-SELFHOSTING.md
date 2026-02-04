@@ -48,7 +48,7 @@ sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
 # Check if already configured
 grep -i "disable_ipv6" /etc/sysctl.conf
 
-# If NOT present, add the settings
+# If NOT present, add the settings to make it PERMANENT after Reboot
 echo "net.ipv6.conf.all.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 echo "net.ipv6.conf.default.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 
