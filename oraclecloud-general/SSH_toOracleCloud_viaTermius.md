@@ -22,6 +22,11 @@ ssh -i "C:\path\to\your\keys\ssh-key-YYYY-MM-DD.key" -o IdentitiesOnly=yes ubunt
 1. **Keychain → Keys → Import**
 
    * Import the private key: `ssh-key-YYYY-MM-DD.key`
+  
+<img width="561" height="348" alt="image" src="https://github.com/user-attachments/assets/d405b22d-5eb5-4c90-89b4-119fa804a951" />
+
+
+
 2. **Hosts → New Host**
 
    * Address: `<VM_PUBLIC_IP>`
