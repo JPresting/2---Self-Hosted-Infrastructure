@@ -43,7 +43,7 @@ Run one platform on the host, additional platforms in VMs. Each gets its own Clo
 
 ### Prerequisites
 
-- Ubuntu 22.04/24.04 LTS server
+- Ubuntu 24.04 LTS server
 - Domain with DNS managed by Cloudflare
 - Cloudflare account with Zero Trust access
 
