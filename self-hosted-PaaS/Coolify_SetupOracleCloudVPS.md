@@ -22,7 +22,7 @@ To ensure stability and isolate networking issues, strictly follow this rule:
 4.  Click **Save Tunnel**.
 5.  **Copy the Token:** Copy the command/token block for the relevant OS (Debian/Ubuntu).
 
-### Phase B: Configure SSH Access (Critical)
+### Phase B: Configure SSH Access 
 Before leaving Cloudflare, define how to reach this server via SSH.
 1.  In the Tunnel configuration, go to **Public Hostname**.
 2.  **Add a new Public Hostname**:
@@ -40,6 +40,8 @@ Before leaving Cloudflare, define how to reach this server via SSH.
 4.  **Paste Token:** Paste the token from Phase A into the "Cloudflare Token" field.
 5.  **Configured SSH Domain:** Enter the FQDN you set in Phase B (e.g., `ssh-server-01.example.com`).
     * *Note: Do not add http/https prefix here.*
+   <img width="1058" height="464" alt="Screenshot 2026-02-09 150530" src="https://github.com/user-attachments/assets/7b653665-6353-47aa-acf0-81934d0f8542" />
+
 6.  Click **(Re)Start Proxy** or **Install**.
     * Wait for the logs to show "Healthy".
 
@@ -49,8 +51,21 @@ Before leaving Cloudflare, define how to reach this server via SSH.
 When you deploy a new application (e.g., CMS, Database, API) on this server:
 
 1.  **In Coolify:**
-    * Set the domain (e.g., `app.example.com`).
-    * **Do not** expose ports (0.0.0.0:80). The internal proxy handles it.
+
+### Step 1: Configure your Coolify project (e.g. Docker Compose)
+**Crucial:** Use `expose` to make the port visible to the internal proxy (Traefik). **Do NOT** use `ports`, as this would bypass the tunnel and open the port to the public internet.
+
+**Correct Example:**
+```yaml
+services:
+  my-app:
+    image: my-image:latest
+    expose:
+      - "8080"   # ✅ CORRECT: Visible to Traefik/Coolify only
+    # ports:
+    #   - "8080:8080" ❌ WRONG: Exposes port to public internet (security risk + has to be mentioned in your Cloudflare Tunnel)
+```
+### Step 2: Configure Cloudflare (Tunnel Configuration)
 
 2.  **In Cloudflare (Tunnel Configuration):**
     * Open the **Dedicated Tunnel** for this server.
