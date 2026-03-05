@@ -242,8 +242,56 @@ Only needed if your application requires true end-to-end HTTPS (e.g. secure cook
 
 ---
 
-## Reference
+---
 
-- [Coolify: Cloudflare Tunnels — All Resources](https://coolify.io/docs/knowledge-base/cloudflare/tunnels/all-resource)
-- [Coolify: Full TLS Setup](https://coolify.io/docs/knowledge-base/cloudflare/tunnels/full-tls)
-- [Coolify: Cloudflare Tunnels Overview](https://coolify.io/docs/knowledge-base/cloudflare/tunnels/overview)
+## Enterprise Exception: Multiple Tunnels on Same Domain
+
+### DNS Wildcard Limitation
+
+**Critical:** You can only have **ONE wildcard CNAME** (`*`) per domain in DNS (RFC 1034 limitation).
+
+If you already have:
+- **Tunnel A:** `*.yourdomain.com` → `http://localhost:80` (Traefik wildcard)
+
+And need to add a service on a **different tunnel**:
+- You **CANNOT** create another `*` wildcard on Tunnel B
+- You **MUST** use a specific subdomain route (e.g., `specific.yourdomain.com`)
+
+### When You Need This
+
+- Running services on **different servers** with different tunnels
+- One tunnel has wildcard for Traefik, but you need specific routes elsewhere
+- Multiple infrastructure setups on same domain
+
+### Configuration
+
+**For the specific subdomain route (Tunnel B), you MUST expose ports:**
+```yaml
+services:
+  myservice:
+    image: 'myapp/image:latest'
+    ports:
+      - '8080:8080'  # REQUIRED - cloudflared needs host port access
+    environment:
+      # your config
+```
+
+**In Cloudflare Tunnel B:**
+- **Subdomain:** `specific` (exact name, not `*`)
+- **Domain:** `yourdomain.com`
+- **Service:** `http://localhost:8080`
+
+### Why Ports Are Required
+
+- Cloudflared runs on the **host** (not in Docker networks)
+- Can only reach `http://localhost:PORT`
+- Needs `ports:` mapping to access the container
+
+### Summary
+
+| Scenario | Cloudflare Route | Compose Config | Use Case |
+|----------|-----------------|----------------|----------|
+| **Wildcard (Traefik)** | `*` → `localhost:80` | `expose:` only | All services on same tunnel, Traefik routing |
+| **Specific Route** | `subdomain` → `localhost:PORT` | `ports:` required | Service on different tunnel/server |
+
+---
