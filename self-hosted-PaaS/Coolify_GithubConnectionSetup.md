@@ -1,4 +1,5 @@
 
+
 ### Setting up the GitHub App in Coolify
 
 ### Why do we need this? (The Benefits)
@@ -55,5 +56,4 @@ Connecting Coolify to GitHub via a GitHub App unlocks full CI/CD automation for 
 * **Permission Sync (N/A):** If your private repositories still do not load, go to your GitHub App settings in Coolify and click **Refetch**. The permissions should display `read` and `write` instead of `N/A`. *(Note: Caching layers like Cloudflare might cause a visual delay here).*
 
 <img width="1099" height="230" alt="image" src="[https://github.com/user-attachments/assets/0e5bf3e4-873a-473d-b4af-c1d6b886e9fc](https://github.com/user-attachments/assets/0e5bf3e4-873a-473d-b4af-c1d6b886e9fc)" />
-
 
