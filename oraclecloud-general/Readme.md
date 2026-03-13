@@ -16,12 +16,15 @@ They can then be used during login. By default, it will wait for you to authenti
 
 <img width="651" height="654" alt="image" src="https://github.com/user-attachments/assets/b53eae84-09da-445c-8751-3afc6b1e544d" />
 
-Then I would recommend you add at least one more authenticator app next to the Oracle Authenticator. It really doesn't matter what you are adding here, but the Oracle Authenticator app often has bugs, so I would recommend Microsoft or Google Authenticator.
+Then I would recommend you add at least one more authenticator app next to the Oracle Authenticator. It really doesn't matter what you are adding here, but the Oracle Authenticator app is often surrounded by bugs, so I would recommend Microsoft or Google Authenticator. The 
 
 Go to **Actions** → **Add mobile app** → **Scan the QR-Code** → **select the toggle 'Offline mode or use another authenticator'**
 
 <img width="1728" height="806" alt="image" src="https://github.com/user-attachments/assets/455cd638-6ed5-4c9f-a904-306ccf451b75" />
 
+**Bypass Codes:** Adding bypass codes is a security risk depending on where you store them, but would still allow access if your physical device holding the authenticator apps is **NOT** available!
+
+Click on **Generate** and then you can copy the bypass code to a safe location. Bear in mind that it only shows once. You can easily create new bypass codes but as mentioned, they are a security risk — so keep that in mind!
 
 
 ## 📍1.1 Get an Instance in the First Place
