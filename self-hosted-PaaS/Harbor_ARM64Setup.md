@@ -77,7 +77,7 @@ sudo nano harbor.yml
 Key settings:
 
 ```yaml
-hostname: registry2.yourdomain.com
+hostname: your-registry-domain.com
 
 http:
   port: 8888
@@ -88,7 +88,7 @@ http:
 #   certificate: ...
 #   private_key: ...
 
-external_url: https://registry2.yourdomain.com
+external_url: https://your-registry-domain.com
 
 harbor_admin_password: YOUR_ADMIN_PASSWORD
 ```
@@ -154,12 +154,12 @@ In Cloudflare Zero Trust, add a public hostname:
 
 | Field | Value |
 |-------|-------|
-| Subdomain | `registry2` |
+| Subdomain | `your-subdomain` |
 | Domain | `yourdomain.com` |
 | Type | HTTP |
 | URL | `localhost:8888` |
 
-Harbor UI: `https://registry2.yourdomain.com/harbor`
+Harbor UI: `https://your-registry-domain.com/harbor`
 
 ### Step 10 — Reboot Persistence for binfmt
 
