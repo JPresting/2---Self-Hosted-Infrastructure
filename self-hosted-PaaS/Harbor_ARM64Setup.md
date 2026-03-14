@@ -265,7 +265,7 @@ Add this at the end of your workflow to trigger replication immediately after ev
       -d "{\"policy_id\":1}"
 ```
 
-Replace `your-harbor-domain` and `policy_id` with your actual values.
+Replace `your-harbor-domain` and `policy_id` with your actual values. This requires you to untoggle the `Bot Fight mode`.
 
 ---
 
