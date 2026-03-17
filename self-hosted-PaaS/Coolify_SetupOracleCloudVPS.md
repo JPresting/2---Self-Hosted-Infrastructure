@@ -13,12 +13,63 @@ To ensure stability and isolate networking issues, strictly follow this rule:
 
 ---
 
-## 2. Step-by-Step Setup
+## 2. Multi-Server Wildcard Routing
+
+### The Wildcard Constraint
+Cloudflare only allows **one tunnel** to hold the wildcard route (`*.example.com`) for a given domain. This means:
+
+| Server | Tunnel | Routing |
+|---|---|---|
+| **Home Server** (primary) | `HomeServer` | `*.example.com` → `http://localhost:80` (wildcard) |
+| **Cloud Server** (secondary) | `CloudServer` | Each subdomain must be added **explicitly** |
+
+> **Rule:** The server with the most services should own the wildcard. Every other server must define each subdomain as a separate published application route in its tunnel.
+
+### How This Works in Practice
+
+**Home Server tunnel** — single wildcard catches everything:
+```
+*.example.com → http://localhost:80
+```
+Coolify's proxy (Traefik/Caddy) on the home server matches the hostname and routes to the correct container internally.
+
+**Cloud Server tunnel** — explicit routes per service:
+```
+ssh-cloud.example.com       → ssh://localhost:22
+app1-cloud.example.com      → http://localhost:80
+app2-cloud.example.com      → http://localhost:80
+app3-cloud.example.com      → http://localhost:80
+```
+
+> **Why `localhost:80` for web services?** Coolify deploys its own reverse proxy (`coolify-proxy`) on every managed server, listening on port 80/443. The proxy receives the request, inspects the `Host` header, and routes it to the correct container. You do NOT need to know or specify internal container ports — just point the tunnel at `localhost:80` and let Coolify handle the rest.
+
+### Adding a New Service on the Secondary Server
+
+1. Deploy the service in Coolify and set the desired domain (e.g., `myapp-cloud.example.com`).
+2. Go to Cloudflare Zero Trust → Tunnels → select the Cloud Server tunnel.
+3. Add a **Published Application Route**:
+   - **Subdomain:** `myapp-cloud`
+   - **Domain:** `example.com`
+   - **Service:** `HTTP`
+   - **URL:** `localhost:80`
+4. Save. The route is live immediately.
+
+### Common Mistakes
+
+| Mistake | Why It Fails |
+|---|---|
+| Adding `*.example.com` wildcard on **both** tunnels | Cloudflare can't resolve which tunnel to use — traffic goes to random server |
+| Using `localhost:8080` instead of `localhost:80` | Bypasses Coolify's proxy — the proxy handles hostname routing on port 80 |
+| Using `ports:` instead of `expose:` in Compose | Exposes the port directly on the host — security risk and bypasses the proxy |
+
+---
+
+## 3. Step-by-Step Setup
 
 ### Case A: Fresh Server (Nothing Running Yet)
 
 #### Phase A: Create Tunnel in Cloudflare
-1.  Go to **Zero Trust Dashboard** -> **Networks** -> **Tunnels**.
+1.  Go to **Zero Trust Dashboard** → **Networks** → **Tunnels**.
 2.  Click **Create a Tunnel**.
 3.  Name it clearly (e.g., `your-server-name`).
 4.  Click **Save Tunnel**.
@@ -68,7 +119,7 @@ echo "ssh-ed25519 AAAA...your-public-key... coolify-generated-ssh-key" >> ~/.ssh
     * Wait until all checks show ✅
 
 #### Phase F: Configure Cloudflare Tunnel in Coolify
-1.  Server → **Configuration** -> **Cloudflare Tunnel** (left menu)
+1.  Server → **Configuration** → **Cloudflare Tunnel** (left menu)
 2.  Enter:
     * **Cloudflare Token:** Token from Phase A
     * **Configured SSH Domain:** `ssh-server-01.example.com` *(no http/https prefix)*
@@ -85,7 +136,7 @@ echo "ssh-ed25519 AAAA...your-public-key... coolify-generated-ssh-key" >> ~/.ssh
 > to Coolify for future deployments without touching existing apps.
 
 #### Phase A: Create Tunnel in Cloudflare
-1.  Go to **Zero Trust Dashboard** -> **Networks** -> **Tunnels**.
+1.  Go to **Zero Trust Dashboard** → **Networks** → **Tunnels**.
 2.  Click **Create a Tunnel** and name it clearly (e.g., `your-server-name`).
 3.  **Copy the Token.**
 
@@ -117,7 +168,7 @@ echo "ssh-ed25519 AAAA...your-public-key... coolify-generated-ssh-key" >> ~/.ssh
 
 #### Phase E: Free up Port 80
 > ⚠️ Some servers (e.g. Oracle Cloud) run Nginx on Port 80 by default.
-> Coolify's Traefik requires Port 80 — any existing service on it must be stopped first.
+> Coolify's proxy requires Port 80 — any existing service on it must be stopped first.
 > Apps running through that service will be offline until migrated to Coolify.
 
 ```bash
@@ -163,7 +214,7 @@ If validation fails:
 | Port 80 in use | Re-run Phase E → Retry Validation |
 
 #### Phase H: Configure Cloudflare Tunnel in Coolify
-1.  Server → **Configuration** -> **Cloudflare Tunnel** (left menu)
+1.  Server → **Configuration** → **Cloudflare Tunnel** (left menu)
 2.  Enter:
     * **Cloudflare Token:** Token from Phase A
     * **Configured SSH Domain:** `ssh-server-01.example.com` *(no http/https prefix)*
@@ -174,11 +225,11 @@ If validation fails:
 
 ---
 
-## 3. Deploying Apps (Routing Logic)
+## 4. Deploying Apps (Routing Logic)
 When you deploy a new application (e.g., CMS, Database, API) on this server:
 
 ### Step 1: Configure your Coolify project (e.g. Docker Compose)
-**Crucial:** Use `expose` to make the port visible to the internal proxy (Traefik). **Do NOT** use `ports`, as this would bypass the tunnel and open the port to the public internet.
+**Crucial:** Use `expose` to make the port visible to the internal proxy. **Do NOT** use `ports`, as this would bypass the tunnel and open the port to the public internet.
 
 **Correct Example:**
 ```yaml
@@ -186,19 +237,22 @@ services:
   my-app:
     image: my-image:latest
     expose:
-      - "8080"   # ✅ CORRECT: Visible to Traefik/Coolify only
+      - "8080"   # ✅ CORRECT: Visible to Coolify proxy only
     # ports:
-    #   - "8080:8080" ❌ WRONG: Exposes port to public internet (security risk + has to be mentioned in your Cloudflare Tunnel)
+    #   - "8080:8080" ❌ WRONG: Exposes port to public internet
 ```
 
 ### Step 2: Configure Cloudflare (Tunnel Configuration)
 
-In Cloudflare (Tunnel Configuration):
-*   Open the **Dedicated Tunnel** for this server.
-*   Add a **Public Hostname**.
-*   **Subdomain:** Match the subdomain used in Coolify (e.g., `app`).
-*   **Service:** `HTTP` -> `localhost:80`
-*   **Save.**
+**If this server owns the wildcard:** Nothing to do. The wildcard route already catches all subdomains and sends them to `localhost:80`. Coolify's proxy handles the rest.
+
+**If this is a secondary server (no wildcard):** Add an explicit route for each new service:
+1. Open the **Dedicated Tunnel** for this server in Cloudflare.
+2. Add a **Public Hostname**:
+   - **Subdomain:** Match the subdomain used in Coolify (e.g., `app`).
+   - **Service:** `HTTP`
+   - **URL:** `localhost:80`
+3. **Save.**
 
 **Why this works:**
-Cloudflare sees the specific rule (`app.example.com`) in this specific Tunnel and routes it there immediately. It ignores any wildcards (`*.example.com`) that might exist on other tunnels or servers.
+Cloudflare sees the specific route (`app.example.com`) in this specific Tunnel and routes it there immediately. It ignores any wildcards (`*.example.com`) that might exist on other tunnels or servers.
