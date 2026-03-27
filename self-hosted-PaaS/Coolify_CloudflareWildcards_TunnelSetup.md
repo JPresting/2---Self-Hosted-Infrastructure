@@ -91,11 +91,102 @@ For each service, click **Settings** in Coolify and configure:
 | **Domains**       | `http://myapp.yourdomain.com`            |
 | **Ports Exposes** | The container's internal port (e.g. `8080`) |
 
-Want to deploy another service tomorrow? Just set its domain to `http://anothername.yourdomain.com` in Coolify. No changes needed in Cloudflare — the wildcard tunnel already covers it.
+Want to deploy another service tomorrow? Just set its domain to `http://anothername.yourdomain.com` in Coolify. No changes needed in Cloudflare — the wildcard tunnel handles all of them.
 
 ### ⚠️ CRITICAL: Use `http://` — NOT `https://`
 
 The domain in Coolify **must** start with `http://`. This is the single most important setting and the most common source of errors. See "Common Errors" below for why.
+
+---
+
+## Port Routing: Why Some Services Get 502 and Others Don't
+
+You followed every step above, the container is running, but the domain returns **502 Bad Gateway**. Meanwhile, n8n or Plausible deployed through Coolify work fine with the exact same setup. Here's why.
+
+### How Coolify Determines the Internal Port
+
+Traefik needs this label to know where to send traffic:
+
+```
+traefik.http.services.<hash>.loadbalancer.server.port=<PORT>
+```
+
+If this label is wrong or missing, Traefik defaults to port **80**. If the container doesn't listen on 80 — 502.
+
+Coolify generates this label differently depending on how you deployed.
+
+### Official Coolify Templates (n8n, Plausible, Uptime Kuma, etc.)
+
+Services from Coolify's built-in template library have the port **hardcoded in the template**. Coolify's code knows that n8n listens on 5678, Plausible on 8000, etc. The correct label is always generated — no matter what you enter in the domain field.
+
+That's why `http://n8n.yourdomain.com` works without any port suffix. The template handles it silently.
+
+### Custom Docker Compose Deployments
+
+When you bring your own `docker-compose.yml`, there's no template. Coolify tries to figure out the port through a fallback chain:
+
+1. **Port suffix in the domain field** → e.g., `http://app.yourdomain.com:9000` → uses 9000 ✅
+2. **Single `EXPOSE` directive** → if only one port is exposed, Coolify infers it ✅
+3. **Multiple ports or no `EXPOSE`** → can't determine the port → **defaults to 80** ❌
+
+If your container exposes multiple ports (e.g., a web UI on 9000 and a streaming port on 1935), Coolify sees multiple candidates, gives up, and falls back to 80.
+
+### The Env Var Trap
+
+You might think this solves it:
+
+```yaml
+environment:
+  - SERVICE_FQDN_MYAPP_9000
+  - SERVICE_URL_MYAPP_9000
+```
+
+It doesn't. The `_9000` suffix:
+- ✅ Generates the correct FQDN/URL as an environment variable inside the container
+- ✅ Creates a Coolify-internal association between this FQDN and port 9000
+- ❌ Does **NOT** reliably control Traefik label generation for custom Compose services
+
+The label generator reads the **domain field in the Coolify UI** as its primary source of truth. The env var suffix is a hint that doesn't propagate to `loadbalancer.server.port`.
+
+### The Fix
+
+Add the port to the domain field in the Coolify UI:
+
+```
+http://app.yourdomain.com:9000
+```
+
+This forces Coolify to generate:
+
+```
+traefik.http.services.<hash>.loadbalancer.server.port=9000
+```
+
+The `:9000` is purely an internal hint. It never appears externally — users access `https://app.yourdomain.com` as normal.
+
+### Quick Reference
+
+| Scenario | Domain Field | Result |
+|----------|-------------|--------|
+| Official Coolify template | `http://app.yourdomain.com` | ✅ Works — port from template |
+| Custom Compose, single `EXPOSE` | `http://app.yourdomain.com` | ✅ Usually works — inferred |
+| Custom Compose, multiple ports | `http://app.yourdomain.com` | ❌ 502 — defaults to port 80 |
+| Custom Compose, explicit port | `http://app.yourdomain.com:9000` | ✅ Works — forces correct label |
+
+**Rule of thumb:** For any custom Compose service, always add `:PORT` to the domain field. It costs nothing and eliminates ambiguity.
+
+### How to Verify
+
+```bash
+docker inspect <container-name> | grep -i "traefik" | grep "loadbalancer"
+```
+
+Expected:
+```
+"traefik.http.services.<hash>.loadbalancer.server.port": "9000"
+```
+
+If it shows 80 or the label is missing, the domain field needs the port suffix.
 
 ---
 
@@ -200,11 +291,19 @@ This is **not recommended** unless you have a specific reason. The problems:
 - Change domain in Coolify from `https://` to `http://`
 - Or add label: `traefik.http.routers.SERVICE.entrypoints=web`
 
-### `Page Not Found` (404) / `502 Bad Gateway`
+### `502 Bad Gateway`
 
-**Cause:** Traefik doesn't know the correct internal port of the container.
+**Cause:** Traefik doesn't know the correct internal port of the container. This almost always affects custom Compose deployments where the container exposes multiple ports or no `EXPOSE` directive is set. Coolify defaults the `loadbalancer.server.port` to 80 when it can't determine the correct port. See the "Port Routing" section above for the full explanation.
 
-**Fix:** Add label: `traefik.http.services.SERVICE.loadbalancer.server.port=XXXX`
+**Fix (choose one):**
+- Add `:PORT` to the domain field in Coolify: `http://app.yourdomain.com:9000`
+- Or add label: `traefik.http.services.SERVICE.loadbalancer.server.port=XXXX`
+
+### `Page Not Found` (404)
+
+**Cause:** Usually the same root cause as 502 — wrong port. Traefik routes to port 80, but the container responds with a 404 because it has no handler on that port (some containers run a default web server on 80 that returns 404 for unknown routes).
+
+**Fix:** Same as 502 above.
 
 ### Configuration Alignment
 
@@ -238,9 +337,8 @@ Only needed if your application requires true end-to-end HTTPS (e.g. secure cook
 - [ ] Coolify Domains: start with **`http://`** (or use Traefik labels to allow HTTP)
 - [ ] Compose uses **`expose:`** (not `ports:`)
 - [ ] Ports Exposes in Coolify matches the container's internal port
+- [ ] Custom Compose with non-standard port? Add `:PORT` to domain field
 - [ ] New service? Just add a domain in Coolify — no Cloudflare changes needed
-
----
 
 ---
 
@@ -293,5 +391,3 @@ services:
 |----------|-----------------|----------------|----------|
 | **Wildcard (Traefik)** | `*` → `localhost:80` | `expose:` only | All services on same tunnel, Traefik routing |
 | **Specific Route** | `subdomain` → `localhost:PORT` | `ports:` required | Service on different tunnel/server |
-
----
