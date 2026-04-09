@@ -1,5 +1,7 @@
 # Supabase Email Redirect Setup - Coolify
 
+**This guide is using Coolify as Deployment Service!**
+
 ## Problem
 Email verification links redirect to wrong URL (API instead of Frontend).
 
