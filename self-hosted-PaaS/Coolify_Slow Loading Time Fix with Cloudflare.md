@@ -30,27 +30,27 @@ Go to [dash.cloudflare.com](https://dash.cloudflare.com) → select your domain 
 
 Select **"Transform requests or responses"** from the dropdown, then click **"Create from template"** under **"Add static header to response"**.
 
-![Step 1 - Rule Templates](step1-rule-templates.png)
+![Rule Templates](assets/01_rule_templates.png)
 
 ---
 
 ### 2. Name the rule & set the filter
 
-You'll land on the rule creation page. Fill in:
+Fill in the rule creation page:
 
 - **Rule name:** `Coolify disable buffering`
 - Select **"Custom filter expression"**
 - Set **Field** → `Hostname`, **Operator** → `equals`, **Value** → `coolify.yourdomain.com`
 
-![Step 2 - Create Rule](step2-create-rule.png)
+![Create Rule](assets/02_create_rule.png)
 
 ---
 
 ### 3. Select Hostname from the field dropdown
 
-In the field dropdown, scroll down and select **Hostname**.
+In the Field dropdown, scroll down and select **Hostname**.
 
-![Step 3 - Hostname Field](step3-hostname-field.png)
+![Hostname Field](assets/03_hostname_field.png)
 
 ---
 
@@ -71,7 +71,7 @@ The Expression Preview will show:
 (http.host eq "coolify.yourdomain.com")
 ```
 
-![Step 4 - Complete Rule](step4-complete-rule.png)
+![Complete Rule](assets/04_complete_rule.png)
 
 ---
 
@@ -81,7 +81,7 @@ Click **Deploy**. Cloudflare will warn that the domain may not be proxied via a 
 
 Select **"Ignore and deploy rule anyway"** → **Deploy rule**.
 
-![Step 5 - Deploy Warning](step5-deploy-warning.png)
+![Deploy Warning](assets/05_deploy_warning.png)
 
 ---
 
