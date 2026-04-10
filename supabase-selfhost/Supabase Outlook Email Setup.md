@@ -30,7 +30,7 @@ This approach decouples transactional email delivery from your primary mailbox p
 
 Create a dedicated resource group to isolate ACS email resources and enable clean cost tracking. Navigate to Azure Portal → Resource Groups → Create.
 
-![Resource Group Creation](./assets/01_resource_group.png)
+<img width="800" alt="Resource Group Creation" src="./assets/01_resource_group.png" />
 *Figure 1: Creating a dedicated resource group for ACS email resources*
 
 > **Note:** Choose a region close to your users. The resource group region does not affect email delivery, but keeps your Azure resources organized geographically.
@@ -41,7 +41,7 @@ Create a dedicated resource group to isolate ACS email resources and enable clea
 
 Create the Email Communication Service resource. Navigate to Azure Portal → Create a resource → search for "Email Communication Services" → Create. Assign it to the resource group created in Step 1.
 
-![ECS Overview](./assets/02_ecs_overview.png)
+<img width="800" alt="ECS Overview" src="./assets/02_ecs_overview.png" />
 *Figure 2: Email Communication Service overview with domain setup options*
 
 After creation, choose **"Setup a custom domain"** on the right side to begin domain verification. The free Azure subdomain on the left is suitable for testing only — it has very low sending limits.
@@ -52,14 +52,14 @@ After creation, choose **"Setup a custom domain"** on the right side to begin do
 
 Azure requires domain ownership verification via a TXT record. Enter your domain name and Azure will provide the TXT record values to add to your DNS provider.
 
-![TXT Verification](./assets/03_txt_verify.png)
+<img width="800" alt="TXT Verification" src="./assets/03_txt_verify.png" />
 *Figure 3: Domain ownership verification via TXT record*
 
 Add the TXT record to your DNS provider. Verification typically completes within 15–20 minutes.
 
 ### Domain Status After Verification
 
-![Domain Verified](./assets/04_domain_verified.png)
+<img width="800" alt="Domain Verified" src="./assets/04_domain_verified.png" />
 *Figure 4: Domain status showing Verified with SPF, DKIM, and DKIM2 pending configuration*
 
 ---
@@ -68,7 +68,7 @@ Add the TXT record to your DNS provider. Verification typically completes within
 
 After domain verification, Azure presents SPF and DKIM records that must be added to your DNS. This is critical for email deliverability and preventing messages from landing in spam.
 
-![SPF and DKIM Setup](./assets/05_spf_dkim.png)
+<img width="800" alt="SPF and DKIM Setup" src="./assets/05_spf_dkim.png" />
 *Figure 5: SPF and DKIM configuration values provided by Azure*
 
 **SPF Record (TXT):**
@@ -87,7 +87,7 @@ Create two CNAME records as shown by Azure. These must be set to **DNS-only** (n
 
 ### All Records Verified
 
-![All Verified](./assets/06_all_verified.png)
+<img width="800" alt="All Verified" src="./assets/06_all_verified.png" />
 *Figure 6: All domain verification checks passed — Domain, SPF, DKIM, and DKIM2*
 
 ---
@@ -96,7 +96,7 @@ Create two CNAME records as shown by Azure. These must be set to **DNS-only** (n
 
 By default, Azure creates a `DoNotReply@yourdomain.com` sender. To add custom sender addresses (e.g., `service@` or `noreply@`), you may need to use the Azure CLI, as the portal Add button can be greyed out on default sending limits.
 
-![MailFrom Addresses](./assets/08_mailfrom.png)
+<img width="800" alt="MailFrom Addresses" src="./assets/08_mailfrom.png" />
 *Figure 7: Default MailFrom address created by Azure*
 
 **Adding a custom sender via Azure CLI:**
@@ -125,7 +125,7 @@ Create a separate **Communication Services** resource (not the Email one). This 
 
 After creating the Communication Services resource, connect the verified email domain from Step 3.
 
-![Connect Domain](./assets/07_connect_domain.png)
+<img width="800" alt="Connect Domain" src="./assets/07_connect_domain.png" />
 *Figure 8: Connecting the verified email domain to the Communication Services resource*
 
 Select your subscription, resource group, email service, and the verified domain. Click Connect.
@@ -136,7 +136,7 @@ Select your subscription, resource group, email service, and the verified domain
 
 ACS SMTP authentication requires a Microsoft Entra ID (formerly Azure AD) application. This acts as the service principal for SMTP authentication. Navigate to Microsoft Entra ID → App registrations → New registration.
 
-![App Registration](./assets/09_app_registration.png)
+<img width="800" alt="App Registration" src="./assets/09_app_registration.png" />
 *Figure 9: Registering a new Entra ID application for SMTP authentication*
 
 Set the account type to **Single Tenant**. No redirect URI is needed. After registration, note the **Application (client) ID** and **Directory (tenant) ID** from the overview page.
@@ -153,12 +153,12 @@ Navigate to Certificates & Secrets → Client secrets → New client secret. Set
 
 The Entra ID application needs the **"Communication and Email Service Owner"** role on the Communication Services resource. Navigate to the ACS resource → Access control (IAM) → Add role assignment.
 
-![Select App](./assets/10_role_select_app.png)
+<img width="800" alt="Select App" src="./assets/10_role_select_app.png" />
 *Figure 10: Selecting the Entra ID application as a member for the role assignment*
 
 Search for your application by name in the member selection panel. It will appear with the type "Application".
 
-![Review Assignment](./assets/11_role_review.png)
+<img width="800" alt="Review Assignment" src="./assets/11_role_review.png" />
 *Figure 11: Reviewing the role assignment before confirming*
 
 ---
@@ -167,7 +167,7 @@ Search for your application by name in the member selection panel. It will appea
 
 In the Communication Services resource, navigate to **SMTP Usernames** and create a new entry. This maps an SMTP username to your Entra ID application for authentication.
 
-![SMTP Username](./assets/12_smtp_username.png)
+<img width="600" alt="SMTP Username" src="./assets/12_smtp_username.png" />
 *Figure 12: Creating a custom SMTP username linked to the Entra ID application*
 
 Select **"Email"** as the username type and enter the local part of your sender address (e.g., "service"). The domain dropdown will show your connected verified domain.
@@ -193,7 +193,7 @@ After applying the configuration, restart your application's email/auth service 
 
 ### Result
 
-![Email Received](./assets/13_email_received.png)
+<img width="800" alt="Email Received" src="./assets/13_email_received.png" />
 *Figure 13: Confirmation email successfully delivered from the custom domain*
 
 The email arrives from the configured sender address with valid SPF and DKIM authentication, ensuring high deliverability and professional appearance.
@@ -204,7 +204,7 @@ The email arrives from the configured sender address with valid SPF and DKIM aut
 
 As a safety measure, configure a budget alert to monitor ACS email costs. Navigate to Cost Management + Billing → Budgets → Add.
 
-![Budget Alert](./assets/14_budget_alert.png)
+<img width="800" alt="Budget Alert" src="./assets/14_budget_alert.png" />
 *Figure 14: Configuring a monthly budget with alert thresholds*
 
 Set a reasonable monthly budget (e.g., $5) scoped to your ACS resource group. Configure alerts at 80% and 100% thresholds to receive email notifications if costs increase unexpectedly.
