@@ -1,6 +1,9 @@
 # Supabase Self-Hosted on Coolify — Troubleshooting Guide
 
-> **Context:** Deploying Supabase via Coolify's built-in template on a remote server (e.g., Oracle Cloud VPS managed by Coolify from a home server). No manual changes were made — only domains for Studio and API were set in the Coolify UI before deploying.
+> **Context:** Deploying Supabase via Coolify's built-in template on a remote server (e.g., Oracle Cloud VPS managed by Coolify from a home server). **This entire troubleshooting guide is a result of Coolify connecting to the remote server as a non-root user (e.g. `ubuntu`) instead of `root`.** When Coolify deploys as a non-root user, bind-mount files are written with incorrect ownership and permissions, causing cascading failures across the entire Supabase stack on first boot.
+
+> **Prevention:** Before deploying Supabase on a remote server via Coolify, always ensure the SSH user in Coolify's Server Settings is set to `root`. See Prerequisites below.
+
 
 ---
 

@@ -199,7 +199,7 @@ sudo systemctl start docker
 | **Name** | Descriptive name for this server |
 | **IP Address/Domain** | Server **public IP** (not the tunnel domain!) |
 | **Port** | `22` |
-| **User** | `ubuntu` for Oracle Cloud / `root` for most other providers |
+| **User** | ⚠️ **MUST be `root`** — using `ubuntu` or any non-root user will cause bind-mount permission failures on all services that run as non-root container users (e.g. Kong, Postgres init scripts). This is the single most common cause of Supabase deployment failures on remote servers. |
 | **Private Key** | Key generated in Phase C |
 
 3.  Click **Continue**
