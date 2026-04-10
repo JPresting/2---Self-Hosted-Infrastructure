@@ -287,17 +287,21 @@ You can later edit the budget and add as many rules as you want so you effective
 
 ## 📍7. ⚠️ CRITICAL FOR LATER: Look for Unattached Volume Storage or Compute
 
-This is very important (make sure you enter the link path exactly as I marked it in the image) as this shows you all the hidden costs - you can easily stop or terminate instances and will not pay for compute but other units like the block storage will continue to cost you money if you aren't careful.
+This is very important as unattached volumes are the #1 hidden cost on Oracle Cloud Free Tier. When you terminate or recreate an instance, the old boot volume often stays behind as an unattached volume — and it keeps costing you money silently.
+
+**⚠️ Do NOT rely solely on Cloud Advisor!** The "Delete unattached block/boot volumes" recommendation only appears after ~7 days of idle time. Freshly detached volumes won't show up there yet — but they start costing you immediately. The "Performance" recommendations (e.g. "Enable performance auto-tuning for detached boot volumes") will however pick them up right away, so that can be an early indicator.
+
+**The reliable way:** Go directly to **Storage → Block Storage → Boot Volumes** (and **Block Volumes** respectively). Check the **State** column — anything showing **Available** without an attached instance is costing you money. Click on the volume, check the **Attached Instances** tab. If it says "No items to display" → terminate it.
+
+Remember: The Always Free Tier includes a total of **200 GB** boot volume storage. Two unattached 200 GB volumes means you're 200 GB over the limit and paying for every day they exist.
 
 ![image](https://github.com/user-attachments/assets/a19cfb48-4b30-48d9-9a61-c4c0ba720712)
-
-It shows you unattached and unused units. Click on the block volume recommended for deletion and follow the process.
 
 ![image](https://github.com/user-attachments/assets/22872211-6839-40ee-9df1-29b9b2b961d7)
 
 Click on **Implement selected** and then on **Delete**:
 
-![image](https://github.com/user-attachments/assets/0ca0ca34-67b3-4816-80e8-3e298bacc492)/>
+![image](https://github.com/user-attachments/assets/0ca0ca34-67b3-4816-80e8-3e298bacc492)
 
 
 ---
