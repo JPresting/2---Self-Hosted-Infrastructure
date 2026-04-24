@@ -145,6 +145,42 @@ You should see the rules for ports 80 and 443 in the list.
 
 ---
 
+## 📍6b. ⚠️ CRITICAL: Fix OAuth2 Callback State Error ⚠️
+
+> **Required if you use n8n behind a reverse proxy (Nginx, Cloudflare Tunnel, etc.)**  
+> Without this, connecting Google, GitHub, or any OAuth2 credential will fail with:  
+> `Error: The OAuth callback state is invalid!`
+
+### Required Environment Variables
+
+Set these in your `docker-compose.yml` (or Coolify environment config) on **both** the `n8n` and `n8n-worker` services:
+
+```yaml
+- 'N8N_EDITOR_BASE_URL=https://YOUR_N8N_DOMAIN'
+- 'WEBHOOK_URL=https://YOUR_N8N_DOMAIN'
+- 'N8N_SKIP_AUTH_ON_OAUTH_CALLBACK=true'
+```
+
+> **Note:** `N8N_SKIP_AUTH_ON_OAUTH_CALLBACK=true` must be set on **both** services. Setting it only on `n8n` is not enough.
+
+### If You Use Cloudflare Access
+
+The OAuth callback URL must bypass Cloudflare Access authentication. Add a **Bypass policy** in your Cloudflare Access application for these paths:
+
+| Path | Reason |
+|------|--------|
+| `/rest/oauth2-credential/callback` | OAuth2 return URL |
+| `/webhook/` | Production webhooks |
+| `/webhook-test/` | Test webhooks |
+
+Action: **Bypass** → Rule: **Everyone**
+
+The n8n UI remains protected — only these specific paths are bypassed.
+
+---
+
+
+
 ## 📍7. Install n8n
 
 From here, the installation process is identical to the GCP guide:
