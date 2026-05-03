@@ -1,13 +1,42 @@
 # Supabase Self-Hosted on Coolify — Troubleshooting Guide
 
-> **Context:** Deploying Supabase via Coolify's built-in template on a remote server (e.g., Oracle Cloud VPS managed by Coolify from a home server). **This entire troubleshooting guide is a result of Coolify connecting to the remote server as a non-root user (e.g. `ubuntu`) instead of `root`.** When Coolify deploys as a non-root user, bind-mount files are written with incorrect ownership and permissions, causing cascading failures across the entire Supabase stack on first boot.
-
-> **Prevention:** Before deploying Supabase on a remote server via Coolify, always ensure the SSH user in Coolify's Server Settings is set to `root`. See Prerequisites below.
-
+> **Context:** This guide covers two confirmed failure scenarios when deploying Supabase via Coolify's built-in template:
+>
+> **Scenario A — Remote server with non-root user (e.g. `ubuntu`):** Coolify connects as a non-root user, bind-mount files are written with incorrect ownership and permissions, causing cascading failures across the entire Supabase stack on first boot. **Prevention:** Always ensure the SSH user in Coolify's Server Settings is set to `root`.
+>
+> **Scenario B — Localhost or any server with root user (e.g. Plesk/AlmaLinux):** Docker creates empty **directories** instead of files for all bind-mount paths, causing the same cascading failures via a different mechanism. This is a known Coolify bug (issues #4665, #5721) that affects root installs too and requires a different fix approach.
 
 ---
 
-## Root Cause: Init Script Race Condition
+## How to Identify Your Scenario
+
+Check DB logs first:
+
+```bash
+docker logs supabase-db-<SERVICE_ID> 2>&1 | grep -E "init|_supabase|ignoring|running|directory" | head -30
+```
+
+**Scenario A indicator:**
+```
+FATAL 28P01 (invalid_password) password authentication failed for user "supabase_admin"
+```
+
+**Scenario B indicator:**
+```
+psql: error: could not read from input file: Is a directory
+```
+
+Then check if SQL files are actually files or directories:
+
+```bash
+ls -la /data/coolify/services/<SERVICE_ID>/volumes/db/
+```
+
+If entries show `drwxr-xr-x` (directory) instead of `-rw-r--r--` (file) → **Scenario B**. Go to the Scenario B fix section below before proceeding with any other steps.
+
+---
+
+## Root Cause: Init Script Race Condition (Both Scenarios)
 
 Supabase's Docker Compose stack consists of ~15 interdependent services. PostgreSQL is the foundation — every other service depends on it. On first boot, Postgres is supposed to execute SQL files mounted into `/docker-entrypoint-initdb.d/` which create databases, schemas, roles, and set passwords.
 
@@ -15,7 +44,71 @@ Supabase's Docker Compose stack consists of ~15 interdependent services. Postgre
 
 **Result:** The database starts successfully but is missing everything the other services need — databases, schemas, roles, passwords, and functions.
 
+In **Scenario A**, the non-root user additionally causes permission errors on the bind-mounted files.
+In **Scenario B**, Docker silently creates directories instead of files — scripts are either ignored or crash with `Is a directory`.
+
 This is **not a user error**. It is a timing issue in how Coolify orchestrates the Supabase template deployment.
+
+---
+
+## Scenario B Fix: Replace Directories with Real Files
+
+> **Run this first before any other fix steps if you identified Scenario B.**
+
+### Step 1: Wipe volumes and do one initial deploy
+
+```bash
+docker compose -f /data/coolify/services/<SERVICE_ID>/docker-compose.yml down -v
+```
+
+Deploy from Coolify UI once — it will fail, that's expected.
+
+### Step 2: Replace all broken SQL files
+
+```bash
+cd /data/coolify/services/<SERVICE_ID>/volumes/db/
+
+for f in jwt.sql logs.sql pooler.sql realtime.sql roles.sql _supabase.sql webhooks.sql; do
+  rm -rf "$f"
+  curl -o "$f" "https://raw.githubusercontent.com/supabase/supabase/master/docker/volumes/db/$f"
+done
+```
+
+### Step 3: Fix Edge Functions entrypoints
+
+```bash
+rm -rf /data/coolify/services/<SERVICE_ID>/volumes/functions/main/index.ts
+rm -rf /data/coolify/services/<SERVICE_ID>/volumes/functions/hello/index.ts
+
+cat > /data/coolify/services/<SERVICE_ID>/volumes/functions/main/index.ts << 'TSEOF'
+import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
+serve(async (req) => {
+  const { pathname } = new URL(req.url);
+  const service_name = pathname.split("/").filter(Boolean)[0];
+  const servicePath = `/home/deno/functions/${service_name}`;
+  const { default: handler } = await import(`${servicePath}/index.ts`);
+  return handler(req);
+});
+TSEOF
+
+cat > /data/coolify/services/<SERVICE_ID>/volumes/functions/hello/index.ts << 'TSEOF'
+import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
+serve(async (_req) => {
+  return new Response(
+    JSON.stringify({ message: "Hello from Supabase Edge Functions!" }),
+    { headers: { "Content-Type": "application/json" } }
+  );
+});
+TSEOF
+```
+
+### Step 4: Wipe volumes again and final redeploy
+
+```bash
+docker compose -f /data/coolify/services/<SERVICE_ID>/docker-compose.yml down -v
+```
+
+Deploy from Coolify UI. Most services should now come up healthy. If `supabase-analytics` still fails, continue with Problem 1 below.
 
 ---
 
@@ -338,6 +431,7 @@ If you encounter these issues on a fresh Coolify Supabase deployment, execute th
 
 | Step | Fixes Problem | Unblocks |
 |---|---|---|
+| 0. **Scenario B only:** Replace directory SQL files + Edge Function files | Docker created directories instead of files | Everything |
 | 1. Create `_supabase` DB | Analytics can't connect | Analytics → everything downstream |
 | 2. Create `_analytics` schema | Analytics migration fails | Analytics health check |
 | 3. Run remaining init SQL scripts | Missing schemas and roles | Auth, Rest, Storage, Realtime, Supavisor |
@@ -360,6 +454,7 @@ All containers should show `(healthy)`.
 ## Prevention & Notes
 
 - **This only affects the initial deployment.** Once the DB volume has all schemas and roles, subsequent Coolify redeploys work correctly.
+- **Do not deploy Supabase twice without wiping volumes in between.** The second deploy sees an already-initialized volume and skips all init scripts permanently — you will need to wipe and start over.
 - **Coolify does not expose container ports to the host by default.** Services are accessible via Coolify's built-in reverse proxy (`coolify-proxy`) on port 80. Point your Cloudflare Tunnel routes to `http://localhost:80` — the proxy routes by hostname.
 - **If you need a completely fresh start:** `docker compose down -v` destroys all data and volumes. The next `docker compose up -d` will likely hit the same race condition — be prepared to repeat the fix steps.
-- **Consider filing a bug with Coolify.** The fix would be to add a startup script or health-check gate that ensures all init scripts have run before declaring the DB container healthy.
+- **Related Coolify issues:** #4665, #5721
